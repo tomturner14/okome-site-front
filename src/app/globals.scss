@@ -1,4 +1,14 @@
+// SCSSの変数定義
+$primary-color: #319304;  // メインの緑色
+$primary-hover: #5ca623;  // ホバー時の緑色
+$background-light: #fff9e6; // 薄い背景色
+$background-white: #ffffff; // 白背景
+$text-dark: #333333;      // 濃いテキスト
+$text-medium: #666666;    // 中間テキスト
+$border-color: #dddddd;   // ボーダー色
+
 body {
+  color: $text-dark;
   font-family: sans-serif;
   margin: 0;
   padding: 0;
@@ -31,20 +41,20 @@ body {
     .header-search-input {
       width: 300px;
       padding: 8px;
-      border: 1px solid #ccc;
+      border: 1px solid $border-color;
       border-radius: 4px 0 0 4px;
     }
 
     .header-search-button {
       padding: 8px 12px;
-      background: #319304;
+      background: $primary-color;
       color: white;
       border: none;
       border-radius: 0 4px 4px 0;
       cursor: pointer;
 
       &:hover {
-        background: #5ca623;
+        background: $primary-hover;
       }
     }
   }
@@ -56,7 +66,7 @@ body {
     .login-button,
     .cart-button {
       padding: 8px 16px;
-      border: 1px solid #ccc;
+      border: 1px solid $border-color;
       background: white;
       cursor: pointer;
       transition: background 0.3s;
@@ -72,7 +82,7 @@ body {
 }
 
 .hero {
-  background: #fff9e6;
+  background: $background-light;
   text-align: center;
   padding: 40px 20px;
 
@@ -98,7 +108,7 @@ body {
       padding: 20px;
       width: 220px;
       height: auto;
-      border: 1px solid #ddd;
+      border: 1px solid $border-color;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -119,14 +129,14 @@ body {
 
       .product-price {
         font-size: 16px;
-        color: #666;
+        color: $text-medium;
         margin: 0;
       }
 
       .add-cart-button {
         margin-top: 10px;
         padding: 8px 16px;
-        background: #319304;
+        background: $primary-color;
         color: white;
         border: none;
         border-radius: 6px;
@@ -134,7 +144,7 @@ body {
         transition: background 0.3s;
 
         &:hover {
-          background: #5CA623;
+          background: $primary-hover;
         }
       }
     }
@@ -143,7 +153,7 @@ body {
   .more-button {
     margin-top: 20px;
     padding: 10px 20px;
-    background: #319304;
+    background: $primary-color;
     color: white;
     border: none;
     cursor: pointer;
@@ -151,7 +161,7 @@ body {
 }
 
 .farmers {
-  background: #fff9e6;
+  background: $background-light;
   text-align: center;
   padding: 40px 20px;
 
@@ -166,7 +176,7 @@ body {
       padding: 20px;
       width: 200px;
       height: 150px;
-      border: 1px solid #ddd;
+      border: 1px solid $border-color;
     }
   }
 }
