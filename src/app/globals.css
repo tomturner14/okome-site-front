@@ -1,0 +1,178 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  background: #f5f5f5;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .logo {
+    font-size: 24px;
+    font-weight: bold;
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+  }
+
+  .header-search-form {
+    flex: 1;
+    margin: 0 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .header-search-input {
+      width: 300px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px 0 0 4px;
+    }
+
+    .header-search-button {
+      padding: 8px 12px;
+      background: #319304;
+      color: white;
+      border: none;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+
+      &:hover {
+        background: #5ca623;
+      }
+    }
+  }
+
+  .header-right {
+    display: flex;
+    gap: 10px;
+
+    .login-button,
+    .cart-button {
+      padding: 8px 16px;
+      border: 1px solid #ccc;
+      background: white;
+      cursor: pointer;
+      transition: background 0.3s;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 4px;
+
+      &:hover {
+        background: #eee;
+      }
+    }
+  }
+}
+
+.hero {
+  background: #fff9e6;
+  text-align: center;
+  padding: 40px 20px;
+
+  .hero-image {
+    margin-top: 20px;
+    height: 200px;
+    background: #ddd;
+  }
+}
+
+.products {
+  text-align: center;
+  padding: 40px 20px;
+
+  .product-list {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+
+    .product-card {
+      background: #f9f9f9;
+      padding: 20px;
+      width: 220px;
+      height: auto;
+      border: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+
+      .product-image {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        background: #eee;
+      }
+
+      .product-name {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0;
+      }
+
+      .product-price {
+        font-size: 16px;
+        color: #666;
+        margin: 0;
+      }
+
+      .add-cart-button {
+        margin-top: 10px;
+        padding: 8px 16px;
+        background: #319304;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s;
+
+        &:hover {
+          background: #5CA623;
+        }
+      }
+    }
+  }
+
+  .more-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #319304;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+}
+
+.farmers {
+  background: #fff9e6;
+  text-align: center;
+  padding: 40px 20px;
+
+  .farmer-list {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+
+    .farmer-card {
+      background: #f9f9f9;
+      padding: 20px;
+      width: 200px;
+      height: 150px;
+      border: 1px solid #ddd;
+    }
+  }
+}
+
+footer {
+  text-align: center;
+  background: #f5f5f5;
+  padding: 10px 0;
+}
