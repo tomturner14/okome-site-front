@@ -2,17 +2,25 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  output: 'standalone', // Dockerイメージサイズを最適化
+  output: 'standalone',
   async rewrites() {
-    // 環境変数が設定されていない場合はデフォルト値を使用
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-    
     return [
       {
         source: '/api/:path*',
-        destination: `${apiUrl}/:path*` // バックエンドへのプロキシ
+        destination: `${apiUrl}/:path*`
       }
     ]
+  },
+  // domains の代わりに remotePatterns を使用
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.shopify.com',
+        pathname: '**',
+      },
+    ],
   }
 }
 
