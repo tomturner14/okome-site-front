@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Product } from '@/types/product';
+import styles from './ProductCard.module.scss';
 
 type ProductCardProps = {
   product: Product;
@@ -7,8 +8,8 @@ type ProductCardProps = {
 
 export default function ProductCard({ product }: ProductCardProps) {
   return (
-    <Link href={`/product/${product.id}`} className="product-card">
-      <div className="product-image">
+    <Link href={`/product/${product.id}`} className={styles.productCard}>
+      <div className={styles.productImage}>
         <div style={{ 
           width: '100%', 
           height: '100%', 
@@ -20,8 +21,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           お米の画像
         </div>
       </div>
-      <h3 className="product-name">{product.name}</h3>
-      <p className="product-price">{product.price.toLocaleString()}円 ({product.weight})</p>
+      <h3 className={styles.productName}>{product.name}</h3>
+      <p className={styles.productPrice}>{product.price.toLocaleString()}円 ({product.weight})</p>
     </Link>
   );
 }

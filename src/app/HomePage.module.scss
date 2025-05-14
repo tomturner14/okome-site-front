@@ -1,0 +1,62 @@
+.hero {
+  background: #fff9e6;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.heroImage {
+  margin-top: 20px;
+  height: 200px;
+  background: #ddd;
+}
+
+.products {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.productList {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.moreButton {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #319304;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+
+  &:hover {
+    background-color: #5ca623;
+  }
+}
+
+.farmers {
+  background: #fff9e6;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.farmerList {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.farmerCard {
+  background: #f9f9f9;
+  padding: 20px;
+  width: 200px;
+  height: 150px;
+  border: 1px solid #ddd;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+}

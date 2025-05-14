@@ -1,41 +1,42 @@
 import Link from 'next/link';
+import styles from './RegisterPage.module.scss';
 
 export default function RegisterPage() {
   return (
-    <div style={{ padding: '0 20px' }}>
+    <div className={styles.form}>
       <h1>新規登録ページ</h1>
       <form>
-        <div>
+        <div className={styles.field}>
           <label>
             お名前:
             <input type="text" name="name" required />
           </label>
         </div>
-        <div>
+        <div className={styles.field}>
           <label>
             メールアドレス:
             <input type="email" name="email" required />
           </label>
         </div>
-        <div>
+        <div className={styles.field}>
           <label>
             パスワード:
             <input type="password" name="password" required />
           </label>
         </div>
-        <div>
+        <div className={styles.field}>
           <label>
             パスワード（確認）:
             <input type="password" name="passwordConfirm" required />
           </label>
         </div>
-        <div style={{ marginTop: '20px' }}>
-          <button type="submit" className="next-button">登録する</button>
+        <div>
+          <button type="submit" className={styles.submitButton}>登録する</button>
         </div>
       </form>
-      <div style={{ marginTop: '20px', textAlign: 'center' }}>
-        <p>すでにアカウントをお持ちの方は<Link href="/login" style={{ color: '#319304' }}>こちら</Link>からログインできます。</p>
-        <Link href="/" className="next-button">トップへ戻る</Link>
+      <div className={styles.linkArea}>
+        <p>すでにアカウントをお持ちの方は<Link href="/login" className={styles.linkGreen}>こちら</Link>からログインできます。</p>
+        <Link href="/" className={styles.submitButton}>トップへ戻る</Link>
       </div>
     </div>
   );

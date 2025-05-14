@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.scss'; // または './globals.css'
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import Header from '@/components/Header/Header';
+import Footer from '@/components/Footer/Footer';
 import { ShopifyCartProvider } from '@/context/ShopifyCartContext';
 
 export const metadata: Metadata = {

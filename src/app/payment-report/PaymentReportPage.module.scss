@@ -1,0 +1,57 @@
+.wrapper {
+  padding: 40px 20px;
+}
+
+.form {
+  max-width: 400px;
+  margin: auto;
+}
+
+.field {
+  margin-bottom: 16px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+  }
+
+  input {
+    margin-top: 6px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+}
+
+.submitButton {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #319304;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+
+  &:hover {
+    background-color: #5ca623;
+  }
+}
+
+.linkArea {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.linkButton {
+  padding: 10px 20px;
+  background-color: #319304;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+
+  &:hover {
+    background-color: #5ca623;
+  }
+}
