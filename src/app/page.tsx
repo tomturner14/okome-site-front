@@ -6,6 +6,8 @@ import styles from './HomePage.module.scss';
 export default async function Home() {
   const products = await getProducts();
 
+  console.log("取得した商品一覧:", products);
+
   return (
     <>
       <section className={styles.hero}>
@@ -18,44 +20,56 @@ export default async function Home() {
         <h2>人気のお米</h2>
         <div className={styles.productList}>
           {products.map((product: any) => (
-            <Link href={`/product/${product.handle}`} className="product-card" key={product.id}>
+            <Link
+              key={product.id}
+              href={`/product/${product.handle}`}
+              className="product-card"
+            >
               <div className="product-image">
-                {product.images && product.images.length > 0 ? (
+                {product.image ? (
                   <Image
-                    src={product.images[0].src}
+                    src={product.image}
                     alt={product.title}
                     width={220}
                     height={150}
                     style={{ objectFit: 'cover' }}
                   />
                 ) : (
-                  <div style={{
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: '#eee',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    お米の画像
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      backgroundColor: '#eee',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    画像なし
                   </div>
                 )}
               </div>
               <h3 className="product-name">{product.title}</h3>
               <p className="product-price">
-                {Number(product.variants[0].price).toLocaleString()}円
+                {Number(product.price).toLocaleString()}円
               </p>
             </Link>
           ))}
         </div>
-        <Link href="/products" className={styles.moreButton}>もっと見る</Link>
+        <Link href="/products" className={styles.moreButton}>
+          もっと見る
+        </Link>
       </section>
 
       <section className={styles.farmers}>
         <h2>生産者紹介</h2>
         <div className={styles.farmerList}>
-          <Link href="/farmers" className={styles.farmerCard}>農家紹介1</Link>
-          <Link href="/farmers" className={styles.farmerCard}>農家紹介2</Link>
+          <Link href="/farmers" className={styles.farmerCard}>
+            農家紹介1
+          </Link>
+          <Link href="/farmers" className={styles.farmerCard}>
+            農家紹介2
+          </Link>
         </div>
       </section>
     </>

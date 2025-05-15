@@ -40,3 +40,18 @@
     background-color: #5ca623;
   }
 }
+
+.removeButton {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    background-color: #c0392b;
+  }
+}

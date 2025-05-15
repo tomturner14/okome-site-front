@@ -1,188 +1,21 @@
-// SCSSの変数定義
-$primary-color: #319304;  // メインの緑色
-$primary-hover: #5ca623;  // ホバー時の緑色
-$background-light: #fff9e6; // 薄い背景色
-$background-white: #ffffff; // 白背景
-$text-dark: #333333;      // 濃いテキスト
-$text-medium: #666666;    // 中間テキスト
-$border-color: #dddddd;   // ボーダー色
+// SCSS変数（他で import したい場合は _variables.scss に切り出してOK）
+$primary-color: #319304;
+$primary-hover: #5ca623;
+$background-light: #fff9e6;
+$background-white: #ffffff;
+$text-dark: #333333;
+$text-medium: #666666;
+$border-color: #dddddd;
+
+// 全体初期設定
+* {
+  box-sizing: border-box;
+}
 
 body {
   color: $text-dark;
   font-family: sans-serif;
   margin: 0;
   padding: 0;
-}
-
-.header {
-  background: #f5f5f5;
-  padding: 10px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  .logo {
-    font-size: 24px;
-    font-weight: bold;
-
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-  }
-
-  .header-search-form {
-    flex: 1;
-    margin: 0 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    .header-search-input {
-      width: 300px;
-      padding: 8px;
-      border: 1px solid $border-color;
-      border-radius: 4px 0 0 4px;
-    }
-
-    .header-search-button {
-      padding: 8px 12px;
-      background: $primary-color;
-      color: white;
-      border: none;
-      border-radius: 0 4px 4px 0;
-      cursor: pointer;
-
-      &:hover {
-        background: $primary-hover;
-      }
-    }
-  }
-
-  .header-right {
-    display: flex;
-    gap: 10px;
-
-    .login-button,
-    .cart-button {
-      padding: 8px 16px;
-      border: 1px solid $border-color;
-      background: white;
-      cursor: pointer;
-      transition: background 0.3s;
-      text-decoration: none;
-      color: inherit;
-      border-radius: 4px;
-
-      &:hover {
-        background: #eee;
-      }
-    }
-  }
-}
-
-.hero {
-  background: $background-light;
-  text-align: center;
-  padding: 40px 20px;
-
-  .hero-image {
-    margin-top: 20px;
-    height: 200px;
-    background: #ddd;
-  }
-}
-
-.products {
-  text-align: center;
-  padding: 40px 20px;
-
-  .product-list {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 20px;
-
-    .product-card {
-      background: #f9f9f9;
-      padding: 20px;
-      width: 220px;
-      height: auto;
-      border: 1px solid $border-color;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-
-      .product-image {
-        width: 100%;
-        height: 150px;
-        object-fit: cover;
-        background: #eee;
-      }
-
-      .product-name {
-        font-size: 18px;
-        font-weight: bold;
-        margin: 0;
-      }
-
-      .product-price {
-        font-size: 16px;
-        color: $text-medium;
-        margin: 0;
-      }
-
-      .add-cart-button {
-        margin-top: 10px;
-        padding: 8px 16px;
-        background: $primary-color;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background 0.3s;
-
-        &:hover {
-          background: $primary-hover;
-        }
-      }
-    }
-  }
-
-  .more-button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background: $primary-color;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-}
-
-.farmers {
-  background: $background-light;
-  text-align: center;
-  padding: 40px 20px;
-
-  .farmer-list {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 20px;
-
-    .farmer-card {
-      background: #f9f9f9;
-      padding: 20px;
-      width: 200px;
-      height: 150px;
-      border: 1px solid $border-color;
-    }
-  }
-}
-
-footer {
-  text-align: center;
-  background: #f5f5f5;
-  padding: 10px 0;
+  background-color: white;
 }

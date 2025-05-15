@@ -4,13 +4,23 @@ import Client from 'shopify-buy';
 const client = Client.buildClient({
   domain: process.env.NEXT_PUBLIC_SHOPIFY_DOMAIN || '',
   storefrontAccessToken: process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN || '',
+  apiVersion: '2024-04',
 });
 
 // 商品一覧を取得する関数
 export async function getProducts() {
   try {
-    const products = await client.product.fetchAll();
-    return JSON.parse(JSON.stringify(products));
+    const rawProducts = await client.product.fetchAll();
+
+    const products = rawProducts.map((product: any) => ({
+      id: product.id,
+      title: product.title,
+      handle: product.handle,
+      image: product.images?.[0]?.src ?? '',
+      price: product.variants?.[0]?.price?.amount ?? 0,
+    }));
+
+    return products;
   } catch (error) {
     console.error('Shopify から商品データの取得に失敗しました:', error);
     return [];
@@ -43,10 +53,7 @@ export async function createCart() {
 export async function addToCart(checkoutId: string, variantId: string, quantity: number = 1) {
   try {
     const cart = await client.checkout.addLineItems(checkoutId, [
-      {
-        variantId,
-        quantity
-      }
+      { variantId, quantity }
     ]);
     return JSON.parse(JSON.stringify(cart));
   } catch (error) {

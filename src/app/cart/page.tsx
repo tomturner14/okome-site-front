@@ -1,3 +1,4 @@
+'use client';
 import Link from 'next/link';
 import styles from './CartPage.module.scss';
 
@@ -6,14 +7,13 @@ export default function CartPage() {
     <div style={{ padding: '0 20px' }}>
       <h2>カートの中身</h2>
       <div className={styles.cartItem}>
-        <div className={styles.productImage}>
-          お米の画像
-        </div>
+        <div className={styles.productImage}>お米の画像</div>
         <div className={styles.itemInfo}>
           <p><strong>千葉県産コシヒカリ</strong></p>
           <p>数量: 1</p>
           <p>価格: 4,000円</p>
           <p><strong>合計: 4,000円</strong></p>
+          <button className={styles.removeButton}>削除</button> {/* ←例 */}
         </div>
       </div>
 

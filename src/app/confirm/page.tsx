@@ -1,34 +1,51 @@
-import Link from 'next/link';
-import styles from './ConfirmPage.module.scss';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function ConfirmPage() {
+  const [info, setInfo] = useState<any>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const data = localStorage.getItem('deliveryInfo');
+    if (data) {
+      setInfo(JSON.parse(data));
+    }
+  }, []);
+
+  const handleOrderSubmit = () => {
+    // 本来はここでAPIに送信する処理などを挟む
+    console.log('注文確定:', info);
+    // localStorage など初期化してから遷移しても良い
+    router.push('/done');
+  };
+
+  if (!info) return <p>読み込み中...</p>;
+
   return (
-    <div style={{ padding: '0 20px' }}>
+    <div style={{ padding: '20px' }}>
       <h2>ご注文内容の確認</h2>
+      <p><strong>氏名:</strong> {info.name}</p>
+      <p><strong>住所:</strong> {info.address}</p>
+      <p><strong>電話番号:</strong> {info.phone}</p>
+      <p><strong>メール:</strong> {info.email}</p>
 
-      <section className={styles.confirmSection}>
-        <h3>ご注文商品</h3>
-        <div className={styles.confirmItem}>
-          <div className={styles.productImage}>
-            お米の画像
-          </div>
-          <div>
-            <p><strong>商品名:</strong> 千葉県産コシヒカリ</p>
-            <p><strong>数量:</strong> 1袋</p>
-            <p><strong>合計金額:</strong> 4,000円（税込）</p>
-          </div>
-        </div>
-      </section>
-
-      <section className={styles.confirmSection}>
-        <h3>お届け先</h3>
-        <p><strong>お名前:</strong> 田中 太郎</p>
-        <p><strong>住所:</strong> 千葉県印旛郡酒々井町123-4</p>
-        <p><strong>電話番号:</strong> 090-1234-5678</p>
-      </section>
-
-      <div className={styles.cartActions}>
-        <Link href="/done" className={styles.nextButton}>注文確定</Link>
+      <div style={{ marginTop: '30px', textAlign: 'right' }}>
+        <button
+          onClick={handleOrderSubmit}
+          style={{
+            backgroundColor: '#319304',
+            color: 'white',
+            padding: '12px 24px',
+            fontSize: '16px',
+            borderRadius: '6px',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          注文を確定する
+        </button>
       </div>
     </div>
   );
