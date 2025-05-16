@@ -1,36 +1,43 @@
+@use '@/styles/variables' as *;
+
+.wrapper {
+  padding: 40px 20px;
+}
+
 .form {
-  padding: 0 20px;
+  max-width: 400px;
+  margin: auto;
 }
 
 .field {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 
   label {
-    font-weight: bold;
     display: flex;
     flex-direction: column;
+    font-weight: bold;
   }
 
   input {
+    margin-top: 6px;
     padding: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid $border-color;
     border-radius: 4px;
-    margin-top: 4px;
   }
 }
 
 .submitButton {
   margin-top: 20px;
   padding: 10px 20px;
-  background-color: #319304;
+  background-color: $primary-color;
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  text-decoration: none;
+  text-align: center;
 
   &:hover {
-    background-color: #5ca623;
+    background-color: $primary-hover;
   }
 }
 
@@ -39,7 +46,14 @@
   text-align: center;
 }
 
-.linkGreen {
-  color: #319304;
-  text-decoration: underline;
+.linkButton {
+  padding: 10px 20px;
+  background-color: $primary-color;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+
+  &:hover {
+    background-color: $primary-hover;
+  }
 }

@@ -1,22 +1,29 @@
-.wrapper {
+@use '@/styles/variables' as v;
+
+.page {
   padding: 0 20px;
 }
 
-.linkArea {
-  margin-top: 20px;
-  text-align: right;
+.description {
+  margin-top: 10px;
+  line-height: 1.6;
 }
 
-.nextButton {
-  padding: 10px 20px;
-  background-color: #319304;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  text-decoration: none;
-  cursor: pointer;
+.actions {
+  margin-top: 20px;
+  text-align: center;
 
-  &:hover {
-    background-color: #5ca623;
+  .backButton {
+    padding: 10px 20px;
+    background-color: v.$primary-color;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover {
+      background-color: v.$primary-hover;
+    }
   }
 }

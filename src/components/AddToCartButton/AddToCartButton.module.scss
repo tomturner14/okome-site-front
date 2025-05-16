@@ -1,6 +1,8 @@
-.addCartButton {
-  padding: 8px 16px;
-  background-color: #319304;
+@use '@/styles/variables' as v;
+
+.button {
+  padding: 10px 20px;
+  background-color: v.$primary-color;
   color: white;
   border: none;
   border-radius: 6px;
@@ -8,11 +10,11 @@
   transition: background 0.3s;
 
   &:hover {
-    background-color: #5ca623;
+    background-color: v.$primary-hover;
   }
 
   &:disabled {
-    background-color: #aaa;
+    background-color: #ccc;
     cursor: not-allowed;
   }
 }
