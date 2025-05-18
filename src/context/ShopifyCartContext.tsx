@@ -16,6 +16,9 @@ type ShopifyCartContextType = {
   updateItem: (lineItemId: string, quantity: number) => Promise<void>;
   isCartOpen: boolean;
   setIsCartOpen: (isOpen: boolean) => void;
+  checkoutId: string | null;
+  checkoutUrl: string | null;
+  getCart: (checkoutId: string) => Promise<any>;
 };
 
 const ShopifyCartContext = createContext<ShopifyCartContextType | undefined>(undefined);
@@ -124,7 +127,9 @@ export function ShopifyCartProvider({ children }: { children: ReactNode }) {
         removeItem, 
         updateItem,
         isCartOpen,
-        setIsCartOpen
+        setIsCartOpen,
+        checkoutId,
+        getCart
       }}
     >
       {children}
