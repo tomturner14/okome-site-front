@@ -4,7 +4,9 @@ import Link from 'next/link';
 import AddToCartButton from '@/components/AddToCartButton/AddToCartButton';
 
 type Props = {
-  params: { handle: string };
+  params: {
+    handle: string;
+  };
 };
 
 export default async function ProductPage({ params }: Props) {
