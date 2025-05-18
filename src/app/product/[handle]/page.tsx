@@ -5,7 +5,6 @@ import AddToCartButton from '@/components/AddToCartButton/AddToCartButton';
 
 type Props = {
   params: { handle: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
 };
 
 export default async function ProductPage({ params }: Props) {
