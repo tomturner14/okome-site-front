@@ -28,6 +28,7 @@ export function ShopifyCartProvider({ children }: { children: ReactNode }) {
   const [checkoutId, setCheckoutId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 
   // カートの初期化
   useEffect(() => {
@@ -44,6 +45,7 @@ export function ShopifyCartProvider({ children }: { children: ReactNode }) {
           if (existingCart && !existingCart.completedAt) {
             setCart(existingCart);
             setCheckoutId(existingCheckoutId);
+            setCheckoutUrl(existingCart.webUrl);
             setLoading(false);
             return;
           }
@@ -129,6 +131,7 @@ export function ShopifyCartProvider({ children }: { children: ReactNode }) {
         isCartOpen,
         setIsCartOpen,
         checkoutId,
+        checkoutUrl,
         getCart
       }}
     >
