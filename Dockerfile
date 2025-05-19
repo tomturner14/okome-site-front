@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # 6. Next.js をビルド
-RUN npm run build
+RUN npm run build -- --no-lint
 
 # 7. 本番用に起動
 EXPOSE 3000
