@@ -3,13 +3,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import AddToCartButton from '@/components/AddToCartButton/AddToCartButton';
 
-type Props = {
+type PageProps = {
   params: {
     handle: string;
   };
 };
 
-export default async function ProductPage({ params }: Props) {
+export default async function ProductPage({ params }: PageProps) {
   const product = await getProduct(params.handle);
 
   if (!product) {
