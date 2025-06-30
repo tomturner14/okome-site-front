@@ -21,9 +21,7 @@ export default function MyPage() {
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    const userId = 1;
-
-    fetch(`/users/${userId}/orders`)
+    fetch("/api/me/orders")
       .then((res) => {
         if (!res.ok) throw new Error("注文履歴の取得に失敗しました");
         return res.json();
