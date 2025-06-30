@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./MyPage.module.scss";
 
 type OrderItem = {
@@ -19,16 +20,19 @@ type Order = {
 
 export default function MyPage() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
-    fetch("/api/me/orders")
+    fetch("/api/auth/session")
       .then((res) => {
-        if (!res.ok) throw new Error("注文履歴の取得に失敗しました");
-        return res.json();
+        if (res.status === 401) {
+          router.push("/login");
+          return;
+        }
+        return fetch("/api/me/orders");
       })
-      .then((data) => {
-        setOrders(data);
-      })
+      .then((res) => res?.json())
+      .then((data) => setOrders(data))
       .catch((err) => {
         console.error("注文履歴取得エラー:", err);
       });
