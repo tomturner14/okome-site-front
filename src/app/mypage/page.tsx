@@ -22,6 +22,19 @@ export default function MyPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const router = useRouter();
 
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/auth/logout", { method: "POST" });
+      if (res.ok) {
+        router.push("/login");
+      } else {
+        console.error("ログアウト失敗");
+      }
+    } catch (err) {
+      console.error("ログアウトエラー:", err);
+    }
+  };
+
   useEffect(() => {
     fetch("/api/auth/session")
       .then((res) => {
@@ -41,6 +54,12 @@ export default function MyPage() {
   return (
     <div className={styles.wrapper}>
       <h1>注文履歴</h1>
+
+      {/* ログアウトボタン */}
+      <button onClick={handleLogout} className={styles.logoutButton}>
+        ログアウト
+      </button>
+
       {orders.length === 0 && <p>まだ注文がありません</p>}
 
       <ul>
