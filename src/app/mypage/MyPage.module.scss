@@ -1,0 +1,16 @@
+@use "@/styles/variables" as *;
+
+.wrapper {
+  padding: 2rem;
+}
+
+.order {
+  margin-bottom: 2rem;
+  border: 1px solid $border-color;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.item {
+  margin-left: 1rem;
+}
