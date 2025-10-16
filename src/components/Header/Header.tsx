@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import styles from './Header.module.scss';
+import SessionBadge from "./SessionBadge";
 
 export default function Header() {
   return (
@@ -14,6 +15,7 @@ export default function Header() {
       </form>
 
       <div className={styles['header-right']}>
+        <SessionBadge />
         <Link href="/login" className={styles['login-button']}>ログイン</Link>
         <Link href="/cart" className={styles['cart-button']}>カート</Link>
       </div>

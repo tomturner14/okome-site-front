@@ -1,4 +1,3 @@
-// next.config.ts
 import path from 'path';
 import type { NextConfig } from 'next';
 
@@ -16,7 +15,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `${apiUrl}/:path*`
+        destination: `${apiUrl}/api/:path*`
       }
     ];
   },
