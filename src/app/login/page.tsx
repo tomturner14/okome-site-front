@@ -1,85 +1,84 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from 'next/link';
-import styles from './LoginPage.module.scss';
+import Link from "next/link";
+import { api } from "@/lib/api";
+import styles from "./LoginPage.module.scss";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
-
+    setErr(null);
+    setBusy(true);
     try {
-      const res = await fetch("/api/auth/login", {
+      await api("/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: { email, password },
+        parseErrorJson: true,
       });
-
-      if (!res.ok) {
-        throw new Error("ログインに失敗しました");
-      }
-
-      //成功時に　/mypage　へ遷移させる
-      router.push("/mypage");
-    } catch (err) {
-      setError("ログインに失敗しました");
-      console.error(err);
+      router.replace("/");
+      router.refresh();
+    } catch (e: any) {
+      setErr(e?.data?.error ?? e?.message ?? "ログインに失敗しました");
+    } finally {
+      setBusy(false);
     }
-  };
+  }
 
   return (
-    <div className={styles.form}>
-      <h1>ログインページ</h1>
-      <form onSubmit={handleLogin}>
-        {error && <p className={styles.error}>{error}</p>}
-        <div className={styles.field}>
-          <label>
-            メールアドレス:
-            <input
-              type="email"
-              name="email"
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </label>
-        </div>
-        <div className={styles.field}>
-          <label>
-            パスワード:
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </label>
-        </div>
-        <div>
-          <button type="submit" className={styles.submitButton}>
-            ログイン
-          </button>
-        </div>
-      </form>
+    <main className={styles.page}>
+      <h1 className={styles.title}>ログインページ</h1>
+      <form className={styles.form} onSubmit={onSubmit}>
+        <label className={styles.field}>
+          <span className={styles.label}>メールアドレス:</span>
+          <input
+            className={styles.input}
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </label>
 
-      <div className={styles.linkArea}>
-        <p>
-          アカウントをお持ちでない方は
-          <Link href="/register" className={styles.linkGreen}>
+        <label className={styles.field}>
+          <span className={styles.label}>パスワード:</span>
+          <input
+            className={styles.input}
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
+          />
+        </label>
+
+        {err && <p className={styles.error}>{err}</p>}
+
+        <button className={styles.button} type="submit" disabled={busy}>
+          {busy ? "送信中..." : "ログイン"}
+        </button>
+
+        <p className={styles.helper}>
+          アカウントをお持ちでない方は{" "}
+          <Link href="/register" className={styles.link}>
             こちら
-          </Link>
-          から登録できます。
+          </Link>{" "}
+          から登録できます
         </p>
-        <Link href="/" className={styles.submitButton}>
+
+        <Link href="/" className={styles.secondary}>
           トップへ戻る
         </Link>
-      </div>
-    </div>
+      </form>
+    </main>
   );
 }
