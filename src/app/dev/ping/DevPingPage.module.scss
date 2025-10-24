@@ -1,0 +1,28 @@
+.main {
+  padding: 24px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.gap {
+  margin: 12px 0;
+}
+
+.error {
+  color: crimson;
+}

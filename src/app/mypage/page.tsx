@@ -1,83 +1,46 @@
-"use client";
+import { cookies } from "next/headers";
+import Link from "next/link";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import styles from "./MyPage.module.scss";
-
-type OrderItem = {
-  title: string;
-  quantity: number;
-  price: number;
+type MeResp = {
+  loggedIn: boolean;
+  sessionPing?: number;
+  user?: { id: number; email: string; name: string | null } | null;
 };
 
-type Order = {
-  id: number;
-  order_number: number;
-  total_price: number;
-  ordered_at: string;
-  items: OrderItem[];
-};
+export default async function MyPage() {
+  // SSR でブラウザの Cookie を API に転送するのがポイント
+  const cookieHeader = (await cookies()).toString();
+  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
-export default function MyPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const router = useRouter();
+  const res = await fetch(`&{apiBase}/api/me`, {
+    headers: { cookie: cookieHeader },
+    cache: "no-store",
+  });
 
-  const handleLogout = async () => {
-    try {
-      const res = await fetch("/api/auth/logout", { method: "POST" });
-      if (res.ok) {
-        router.push("/login");
-      } else {
-        console.error("ログアウト失敗");
-      }
-    } catch (err) {
-      console.error("ログアウトエラー:", err);
-    }
-  };
+  if (!res.ok) {
+    throw new Error("failed to load /api/me");
+  }
 
-  useEffect(() => {
-    fetch("/api/auth/session")
-      .then((res) => {
-        if (res.status === 401) {
-          router.push("/login");
-          return;
-        }
-        return fetch("/api/me/orders");
-      })
-      .then((res) => res?.json())
-      .then((data) => setOrders(data))
-      .catch((err) => {
-        console.error("注文履歴取得エラー:", err);
-      });
-  }, []);
+  const me: MeResp = await res.json();
+
+  if (!me.loggedIn) {
+    return (
+      <main style={{ padding: 24 }}>
+        <h1>マイページ</h1>
+        <p>ログインが必要です。</p>
+        <Link href="/login">ログインへ</Link>
+      </main>
+    );
+  }
 
   return (
-    <div className={styles.wrapper}>
-      <h1>注文履歴</h1>
-
-      {/* ログアウトボタン */}
-      <button onClick={handleLogout} className={styles.logoutButton}>
-        ログアウト
-      </button>
-
-      {orders.length === 0 && <p>まだ注文がありません</p>}
-
-      <ul>
-        {orders.map((order) => (
-          <li key={order.id} className={styles.order}>
-            <p>注文番号: {order.order_number}</p>
-            <p>合計金額: {order.total_price}円</p>
-            <p>注文日時: {new Date(order.ordered_at).toLocaleString()}</p>
-            <ul>
-              {order.items.map((item, i) => (
-                <li key={i} className={styles.item}>
-                  {item.title} × {item.quantity}（{item.price}円）
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <main style={{ padding: 24 }}>
+      <h1>マイページ</h1>
+      <p>
+        名前：<b>{me.user?.name ?? "(no name)"}</b>
+      </p>
+      <p>メール：{me.sessionPing ?? "-"}</p>
+      <Link href="/">トップへ</Link>
+    </main>
   );
 }
