@@ -1,8 +1,39 @@
+@use "@/styles/variables" as *;
+
 .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
   padding: 2px 8px;
   border-radius: 999px;
   background: #f0f2f5;
   border: 1px solid #e1e4e8;
   margin-left: 8px;
+}
+
+.count {
+  color: #666;
+}
+
+.btn {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border: 1px solid $border-color;
+  background: #fff;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.6;
+  cursor: pointer;
+  text-decoration: none;
+  /* Linkでもボタンでも同じ見た目 */
+
+  &:hover {
+    background: #f6f8fa;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
 }

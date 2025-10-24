@@ -1,59 +1,41 @@
-@use '@/styles/variables' as *;
+@use "../login/Login.module.scss" as login;
 
-.wrapper {
-  padding: 40px 20px;
+.page {
+  @extend login.page;
+}
+
+.title {
+  @extend login.title;
 }
 
 .form {
-  max-width: 400px;
-  margin: auto;
+  @extend login.form;
 }
 
 .field {
-  margin-bottom: 16px;
-
-  label {
-    display: flex;
-    flex-direction: column;
-    font-weight: bold;
-  }
-
-  input {
-    margin-top: 6px;
-    padding: 8px;
-    border: 1px solid $border-color;
-    border-radius: 4px;
-  }
+  @extend login.field;
 }
 
-.submitButton {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: $primary-color;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: center;
-
-  &:hover {
-    background-color: $primary-hover;
-  }
+.label {
+  @extend login.label;
 }
 
-.linkArea {
-  margin-top: 20px;
-  text-align: center;
+.input {
+  @extend login.input;
 }
 
-.linkButton {
-  padding: 10px 20px;
-  background-color: $primary-color;
-  color: white;
-  text-decoration: none;
-  border-radius: 6px;
+.button {
+  @extend login.button;
+}
 
-  &:hover {
-    background-color: $primary-hover;
-  }
+.error {
+  @extend login.error;
+}
+
+.helper {
+  @extend login.helper;
+}
+
+.link {
+  @extend login.link;
 }

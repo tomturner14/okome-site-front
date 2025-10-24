@@ -1,59 +1,72 @@
-@use '@/styles/variables' as *;
+.page {
+  max-width: 560px;
+  margin: 40px auto;
+  padding: 24px;
+}
 
-.wrapper {
-  padding: 40px 20px;
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 16px;
 }
 
 .form {
-  max-width: 400px;
-  margin: auto;
+  display: grid;
+  gap: 14px;
 }
 
 .field {
-  margin-bottom: 16px;
-
-  label {
-    display: flex;
-    flex-direction: column;
-    font-weight: bold;
-  }
-
-  input {
-    margin-top: 6px;
-    padding: 8px;
-    border: 1px solid $border-color;
-    border-radius: 4px;
-  }
+  display: grid;
+  gap: 6px;
 }
 
-.submitButton {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: $primary-color;
-  color: white;
+.label {
+  font-size: 14px;
+  color: #444;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cfd4dc;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.button {
+  padding: 10px 16px;
   border: none;
   border-radius: 6px;
+  background: #2f8f2f;
+  color: #fff;
+  font-weight: 700;
   cursor: pointer;
-  text-align: center;
 
-  &:hover {
-    background-color: $primary-hover;
+  &:disabled {
+    opacity: .6;
+    cursor: default;
   }
 }
 
-.linkArea {
-  margin-top: 20px;
-  text-align: center;
+.error {
+  color: #c00;
+  font-size: 14px;
 }
 
-.linkButton {
-  padding: 10px 20px;
-  background-color: $primary-color;
-  color: white;
-  text-decoration: none;
-  border-radius: 6px;
+.helper {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #555;
+}
 
-  &:hover {
-    background-color: $primary-hover;
-  }
+.link {
+  color: #0a7;
+  text-decoration: underline;
+}
+
+.secondary {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 14px;
+  color: #333;
 }

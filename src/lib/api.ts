@@ -38,8 +38,8 @@ export async function api<T = unknown>(
     method: opts.method ?? "GET",
     headers,
     body,
-
     credentials: "include",
+    cache: "no-store",
   });
 
   if (!res.ok) {
