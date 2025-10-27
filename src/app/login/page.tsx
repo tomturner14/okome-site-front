@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { api } from "@/lib/api";
 import { AuthOkSchema } from "@/types/api";
@@ -11,13 +12,26 @@ const LoginInputSchema = z.object({
   email: z.string().email("メール形式が正しくありません"),
   password: z.string().min(6, "パスワードは6文字以上"),
 });
-
 type LoginInput = z.infer<typeof LoginInputSchema>;
 
+// 外部URLや不正値を弾くための軽いサニタイズ
+function safeNext(next: string | null): string {
+  if (!next) return "/";
+  // 絶対URLやプロトコル相対を拒否
+  if (next.startsWith("http://") || next.startsWith("https://") || next.startsWith("//")) return "/";
+  // クエリのみやハッシュのみは拒否
+  if (!next.startsWith("/")) return "/";
+  return next;
+}
+
 export default function LoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [form, setForm] = useState<LoginInput>({ email: "", password: "" });
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  const nextParam = searchParams.get("next"); // ← /login?next=/mypage など
 
   function onChange<K extends keyof LoginInput>(k: K, v: string) {
     setForm((s) => ({ ...s, [k]: v }));
@@ -39,12 +53,13 @@ export default function LoginPage() {
       const raw = await api<unknown>("/auth/login", {
         method: "POST",
         body: parsed.data,
-        parseErrorJson: true, // ← これで {error, code} を拾える
+        parseErrorJson: true, // {error, code} を拾う
       });
       AuthOkSchema.parse(raw);
-      location.href = "/";
+
+      // ← ここが “next” 対応（location.href をやめて SPA 遷移）
+      router.replace(safeNext(nextParam));
     } catch (e: any) {
-      // api.ts が throw する { status, data } を想定
       const apiMsg = e?.data?.error ?? e?.message ?? "ログインに失敗しました";
       setErr(apiMsg);
     } finally {
@@ -90,7 +105,10 @@ export default function LoginPage() {
 
         <p className={styles.helper}>
           アカウントをお持ちでない方は{" "}
-          <Link href="/register" className={styles.link}>
+          <Link
+            href={nextParam ? `/register?next=${encodeURIComponent(nextParam)}` : "/register"}
+            className={styles.link}
+          >
             こちら
           </Link>{" "}
           から登録できます

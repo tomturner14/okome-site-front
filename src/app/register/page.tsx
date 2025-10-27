@@ -1,34 +1,34 @@
 "use client";
 
 import { useState } from "react";
-import { z } from "zod";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { z } from "zod";
 import { api } from "@/lib/api";
 import { AuthOkSchema } from "@/types/api";
-import styles from "./RegisterPage.module.scss";
+import styles from "../login/LoginPage.module.scss"; // ← 共有
 
 const RegisterInputSchema = z.object({
-  name: z.string().trim().min(1, "お名前を入力してください"),
   email: z.string().email("メール形式が正しくありません"),
   password: z.string().min(6, "パスワードは6文字以上"),
-  passwordConfirm: z.string().min(6, "確認用パスワードは6文字以上"),
-}).refine((d) => d.password === d.passwordConfirm, {
-  path: ["passwordConfirm"],
-  message: "パスワードが一致しません",
+  name: z.string().max(50, "名前は50文字以内").optional().transform((v) => v ?? ""),
 });
-
 type RegisterInput = z.infer<typeof RegisterInputSchema>;
 
-export default function RegisterPage() {
-  const [form, setForm] = useState<RegisterInput>({
-    name: "",
-    email: "",
-    password: "",
-    passwordConfirm: "",
-  });
+function safeNext(next: string | null): string {
+  if (!next) return "/";
+  if (next.startsWith("http://") || next.startsWith("https://") || next.startsWith("//")) return "/";
+  if (!next.startsWith("/")) return "/";
+  return next;
+}
 
+export default function RegisterPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [form, setForm] = useState<RegisterInput>({ email: "", password: "", name: "" });
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const nextParam = searchParams.get("next");
 
   function onChange<K extends keyof RegisterInput>(k: K, v: string) {
     setForm((s) => ({ ...s, [k]: v }));
@@ -49,20 +49,14 @@ export default function RegisterPage() {
       setBusy(true);
       const raw = await api<unknown>("/auth/register", {
         method: "POST",
-        body: {
-          name: parsed.data.name,
-          email: parsed.data.email,
-          password: parsed.data.password,
-        },
-        // 統一エラー(JSON)を受け取る
+        body: parsed.data,
         parseErrorJson: true,
       });
-      const ok = AuthOkSchema.parse(raw);
-      // 成功時はトップへ
-      location.href = "/";
+      AuthOkSchema.parse(raw);
+      router.replace(safeNext(nextParam));
     } catch (e: any) {
-      const apiMsg: string | undefined = e?.data?.error;
-      setErr(apiMsg ?? e?.message ?? "登録に失敗しました");
+      const apiMsg = e?.data?.error ?? e?.message ?? "登録に失敗しました";
+      setErr(apiMsg);
     } finally {
       setBusy(false);
     }
@@ -70,21 +64,22 @@ export default function RegisterPage() {
 
   return (
     <main className={styles.page}>
-      <h1 className={styles.title}>新規登録</h1>
+      <h1 className={styles.title}>会員登録</h1>
+
       <form className={styles.form} onSubmit={onSubmit}>
         <label className={styles.field}>
-          <span className={styles.label}>お名前</span>
+          <span className={styles.label}>お名前（任意）:</span>
           <input
             className={styles.input}
             type="text"
             value={form.name}
             onChange={(e) => onChange("name", e.target.value)}
-            required
+            placeholder="山田 太郎"
           />
         </label>
 
         <label className={styles.field}>
-          <span className={styles.label}>メールアドレス</span>
+          <span className={styles.label}>メールアドレス:</span>
           <input
             className={styles.input}
             type="email"
@@ -96,26 +91,13 @@ export default function RegisterPage() {
         </label>
 
         <label className={styles.field}>
-          <span className={styles.label}>パスワード</span>
+          <span className={styles.label}>パスワード:</span>
           <input
             className={styles.input}
             type="password"
             autoComplete="new-password"
             value={form.password}
             onChange={(e) => onChange("password", e.target.value)}
-            required
-            minLength={6}
-          />
-        </label>
-
-        <label className={styles.field}>
-          <span className={styles.label}>パスワード（確認）</span>
-          <input
-            className={styles.input}
-            type="password"
-            autoComplete="new-password"
-            value={form.passwordConfirm}
-            onChange={(e) => onChange("passwordConfirm", e.target.value)}
             required
             minLength={6}
           />
@@ -128,16 +110,17 @@ export default function RegisterPage() {
         </button>
 
         <p className={styles.helper}>
-          既にアカウントをお持ちの方は{" "}
-          <Link href="/login" className={styles.link}>
-            ログイン
-          </Link>
-          へ
+          すでにアカウントをお持ちの方は{" "}
+          <Link
+            href={nextParam ? `/login?next=${encodeURIComponent(nextParam)}` : "/login"}
+            className={styles.link}
+          >
+            こちら
+          </Link>{" "}
+          からログイン
         </p>
 
-        <Link href="/" className={styles.secondary}>
-          トップへ戻る
-        </Link>
+        <Link href="/" className={styles.secondary}>トップへ戻る</Link>
       </form>
     </main>
   );

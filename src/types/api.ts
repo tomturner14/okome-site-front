@@ -21,3 +21,23 @@ export const AuthOkSchema = z.object({
   user: UserSchema,
 });
 export type AuthOk = z.infer<typeof AuthOkSchema>;
+
+export const OrderItemSchema = z.object({
+  title: z.string(),
+  quantity: z.number(),
+  price: z.number(),
+  image_url: z.string().optional().default(""),
+});
+
+export const OrderSchema = z.object({
+  id: z.number(),
+  total_price: z.number(),
+  status: z.string(),          // バックの列挙型に合わせて後で厳密化してOK
+  fulfill_status: z.string(),  // 同上
+  ordered_at: z.string(),      // ISO 文字列想定（Dateなら toISOString で返せばOK）
+  items: z.array(OrderItemSchema).optional().default([]),
+});
+
+export const OrdersResponseSchema = z.array(OrderSchema);
+export type OrderItem = z.infer<typeof OrderItemSchema>;
+export type Order = z.infer<typeof OrderSchema>;

@@ -1,46 +1,119 @@
-import { cookies } from "next/headers";
-import Link from "next/link";
+"use client";
 
-type MeResp = {
-  loggedIn: boolean;
-  sessionPing?: number;
-  user?: { id: number; email: string; name: string | null } | null;
-};
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { api } from "@/lib/api";
+import {
+  MeResponseSchema,
+  type MeResponse,
+} from "@/types/api";
+import {
+  OrdersResponseSchema,
+  type Order,
+} from "@/types/api";
+import styles from "./MyPage.module.scss";
 
-export default async function MyPage() {
-  // SSR でブラウザの Cookie を API に転送するのがポイント
-  const cookieHeader = (await cookies()).toString();
-  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+export default function MyPage() {
+  const router = useRouter();
+  const [me, setMe] = useState<MeResponse | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [err, setErr] = useState<string | null>(null);
+  const [busy, setBusy] = useState(true);
 
-  const res = await fetch(`&{apiBase}/api/me`, {
-    headers: { cookie: cookieHeader },
-    cache: "no-store",
-  });
+  useEffect(() => {
+    let active = true;
 
-  if (!res.ok) {
-    throw new Error("failed to load /api/me");
-  }
+    (async () => {
+      try {
+        // 1) セッション確認
+        const meRaw = await api<unknown>("/me", { parseErrorJson: true });
+        const meParsed = MeResponseSchema.parse(meRaw);
+        if (!meParsed.loggedIn || !meParsed.user) {
+          router.replace(`/login?next=/mypage`);
+          return;
+        }
+        if (!active) return;
+        setMe(meParsed);
 
-  const me: MeResp = await res.json();
+        // 2) 注文履歴取得
+        const raw = await api<unknown>(`/users/${meParsed.user.id}/orders`, {
+          parseErrorJson: true,
+        });
+        const list = OrdersResponseSchema.parse(raw);
+        if (!active) return;
+        setOrders(list);
+      } catch (e: any) {
+        setErr(e?.data?.error ?? e?.message ?? "読み込みに失敗しました");
+      } finally {
+        if (active) setBusy(false);
+      }
+    })();
 
-  if (!me.loggedIn) {
-    return (
-      <main style={{ padding: 24 }}>
-        <h1>マイページ</h1>
-        <p>ログインが必要です。</p>
-        <Link href="/login">ログインへ</Link>
-      </main>
-    );
-  }
+    return () => {
+      active = false;
+    };
+  }, [router]);
+
+  if (busy) return <main className={styles.page}>読み込み中...</main>;
+  if (err) return <main className={styles.page}><p className={styles.error}>{err}</p></main>;
+  if (!me?.user) return null; // 直前でリダイレクト済み
 
   return (
-    <main style={{ padding: 24 }}>
-      <h1>マイページ</h1>
-      <p>
-        名前：<b>{me.user?.name ?? "(no name)"}</b>
-      </p>
-      <p>メール：{me.sessionPing ?? "-"}</p>
-      <Link href="/">トップへ</Link>
+    <main className={styles.page}>
+      <h1 className={styles.title}>マイページ</h1>
+
+      <section className={styles.section}>
+        <h2 className={styles.h2}>アカウント</h2>
+        <div className={styles.card}>
+          <p className={styles.row}><span className={styles.key}>お名前</span><span className={styles.val}>{me.user.name}</span></p>
+          <p className={styles.row}><span className={styles.key}>メール</span><span className={styles.val}>{me.user.email}</span></p>
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.h2}>注文履歴</h2>
+
+        {orders.length === 0 ? (
+          <p className={styles.muted}>注文履歴はまだありません。</p>
+        ) : (
+          <ul className={styles.orderList}>
+            {orders.map((o) => (
+              <li key={o.id} className={styles.orderItem}>
+                <div className={styles.orderHead}>
+                  <span className={styles.orderId}># {o.id}</span>
+                  <span className={styles.orderDate}>
+                    {new Date(o.ordered_at).toLocaleString()}
+                  </span>
+                </div>
+
+                <div className={styles.orderMeta}>
+                  <span>合計: {o.total_price.toLocaleString()} 円</span>
+                  <span>支払: {o.status}</span>
+                  <span>発送: {o.fulfill_status}</span>
+                </div>
+
+                {o.items.length > 0 && (
+                  <ul className={styles.itemList}>
+                    {o.items.map((it, idx) => (
+                      <li key={idx} className={styles.itemRow}>
+                        <div className={styles.itemThumb} aria-hidden>
+                          {it.image_url ? <img src={it.image_url} alt="" /> : <div className={styles.noThumb} />}
+                        </div>
+                        <div className={styles.itemBody}>
+                          <p className={styles.itemTitle}>{it.title}</p>
+                          <p className={styles.itemSub}>
+                            {it.quantity} 点 × {it.price.toLocaleString()} 円
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </main>
   );
 }
