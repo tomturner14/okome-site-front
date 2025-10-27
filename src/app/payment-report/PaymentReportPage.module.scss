@@ -1,7 +1,7 @@
-@use '@/styles/variables' as v;
+@use "@/styles/variables" as v;
 
 .page {
-  max-width: 760px;
+  max-width: 720px;
   margin: 0 auto;
   padding: 32px 16px;
 }
@@ -11,51 +11,47 @@
   margin: 0 0 12px;
 }
 
-.lead {
-  margin: 0 0 16px;
-  color: v.$text-dark;
+.good {
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 10px 12px;
+  border-radius: 8px;
 }
 
-.box {
-  border: 1px solid v.$border-color;
+.bad {
+  color: #991b1b;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  padding: 10px 12px;
   border-radius: 8px;
+}
+
+.muted {
+  color: v.$text-medium;
+  margin-top: 8px;
+}
+
+.info {
+  margin: 12px 0 16px;
+  border: 1px dashed v.$border-color;
   background: #fff;
   padding: 12px;
-  margin: 12px 0;
-}
-
-.row {
-  display: flex;
-  gap: 12px;
-  padding: 6px 0;
-  border-bottom: 1px dashed v.$border-color;
-
-  &:last-child {
-    border-bottom: 0;
-  }
-}
-
-.key {
-  width: 100px;
-  color: v.$text-medium;
-}
-
-.val {
-  font-weight: 600;
+  border-radius: 8px;
 }
 
 .actions {
   display: flex;
   gap: 12px;
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .primary {
   display: inline-block;
-  padding: 10px 14px;
-  border-radius: 8px;
+  padding: 10px 16px;
   background: v.$primary-color;
   color: #fff;
+  border-radius: 8px;
   text-decoration: none;
 
   &:hover {
@@ -65,8 +61,8 @@
 
 .secondary {
   display: inline-block;
-  padding: 10px 14px;
-  border-radius: 8px;
+  padding: 10px 16px;
   border: 1px solid v.$border-color;
+  border-radius: 8px;
   text-decoration: none;
 }

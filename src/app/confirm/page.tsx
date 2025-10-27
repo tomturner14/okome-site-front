@@ -1,70 +1,58 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./ConfirmPage.module.scss";
 
-/**
- * Shopify からの戻りを受ける簡易確認ページ。
- * - 受け取りうるクエリ例:
- *   ?order_number=1234 / ?order_id=999 / ?name=#1234 / ?shopify_order_id=xxxx
- * - ここではバックエンド照会は行わず、注文番号などを表示して
- *   「マイページの注文履歴をご確認ください」に誘導する最小実装。
- */
+// 余計な注入を避ける軽いサニタイズ
+function safePath(p: string | null): string {
+  if (!p) return "/";
+  if (p.startsWith("http://") || p.startsWith("https://") || p.startsWith("//")) return "/";
+  if (!p.startsWith("/")) return "/";
+  return p;
+}
+
 export default function ConfirmPage() {
+  const router = useRouter();
   const sp = useSearchParams();
 
-  const orderNumber =
-    sp.get("order_number") ||
-    sp.get("name") ||
-    sp.get("order") ||
-    sp.get("orderName") ||
-    "";
+  // 可能なら注文ID/番号を引き継いで /done に遷移
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const orderId = sp.get("id");
+      const orderNumber = sp.get("order_number");
+      const status = sp.get("status"); // 任意: 決済側から渡ってくることがある
+      const next = "/done" + buildQuery({ id: orderId, order_number: orderNumber, status });
+      router.replace(safePath(next));
+    }, 2000); // 2秒待ってから遷移（ユーザーが読める猶予）
+    return () => clearTimeout(timer);
+  }, [router, sp]);
 
-  const orderId =
-    sp.get("order_id") ||
-    sp.get("id") ||
-    sp.get("shopify_order_id") ||
-    "";
+  const id = sp.get("id");
+  const orderNumber = sp.get("order_number");
+  const next = "/done" + buildQuery({ id, order_number: orderNumber });
 
   return (
     <main className={styles.page}>
-      <h1 className={styles.title}>決済の確認中です</h1>
+      <h1 className={styles.title}>決済を確認しています…</h1>
+      <p className={styles.muted}>このままお待ちください。自動で注文完了画面に移動します。</p>
 
-      <p className={styles.lead}>
-        決済・在庫の確認が完了すると、注文履歴に反映されます。
-      </p>
-
-      {(orderNumber || orderId) && (
-        <div className={styles.info}>
-          {orderNumber && (
-            <p className={styles.row}>
-              <span className={styles.key}>注文番号</span>
-              <span className={styles.val}>{orderNumber}</span>
-            </p>
-          )}
-          {orderId && (
-            <p className={styles.row}>
-              <span className={styles.key}>注文ID</span>
-              <span className={styles.val}>{orderId}</span>
-            </p>
-          )}
-        </div>
-      )}
-
-      <div className={styles.actions}>
-        <Link href="/mypage/orders" className={styles.primary}>
-          注文履歴を開く
-        </Link>
-        <Link href="/" className={styles.secondary}>
-          トップへ戻る
-        </Link>
+      <div className={styles.box}>
+        {orderNumber && <p>注文番号: <strong>{orderNumber}</strong></p>}
+        {id && <p>内部ID: <strong>#{id}</strong></p>}
       </div>
 
-      <p className={styles.help}>
-        反映まで数分かかる場合があります。反映されない場合は、
-        少し時間をおいてから再度お試しください。
+      <p className={styles.actions}>
+        <Link className={styles.link} href={safePath(next)}>移動しない場合はこちらをクリック</Link>
       </p>
     </main>
   );
+}
+
+function buildQuery(q: Record<string, string | null>): string {
+  const s = new URLSearchParams();
+  Object.entries(q).forEach(([k, v]) => { if (v) s.set(k, v); });
+  const str = s.toString();
+  return str ? `?${str}` : "";
 }

@@ -1,60 +1,60 @@
-@use '@/styles/variables' as v;
+@use "@/styles/variables" as v;
 
 .page {
-  max-width: 760px;
+  max-width: 720px;
   margin: 0 auto;
   padding: 32px 16px;
 }
 
 .title {
-  font-size: 24px;
-  margin: 0 0 12px;
+  font-size: 26px;
+  margin: 0 0 8px;
 }
 
 .lead {
+  color: v.$text-medium;
   margin: 0 0 16px;
-  color: v.$text-dark;
 }
 
-.summary {
+.info {
   border: 1px solid v.$border-color;
-  border-radius: 8px;
   background: #fff;
+  border-radius: 10px;
   padding: 12px;
+  margin: 12px 0 20px;
 }
 
 .row {
-  display: flex;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px;
   padding: 6px 0;
   border-bottom: 1px dashed v.$border-color;
 
   &:last-child {
-    border-bottom: 0;
+    border-bottom: none;
   }
 }
 
 .key {
-  width: 100px;
   color: v.$text-medium;
 }
 
 .val {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .actions {
   display: flex;
   gap: 12px;
-  margin-top: 16px;
 }
 
 .primary {
   display: inline-block;
-  padding: 10px 14px;
-  border-radius: 8px;
+  padding: 10px 16px;
   background: v.$primary-color;
   color: #fff;
+  border-radius: 8px;
   text-decoration: none;
 
   &:hover {
@@ -64,8 +64,8 @@
 
 .secondary {
   display: inline-block;
-  padding: 10px 14px;
-  border-radius: 8px;
+  padding: 10px 16px;
   border: 1px solid v.$border-color;
+  border-radius: 8px;
   text-decoration: none;
 }
