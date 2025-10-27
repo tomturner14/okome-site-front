@@ -1,41 +1,78 @@
-@use "../login/Login.module.scss" as login;
+@use "@/styles/variables" as v;
 
 .page {
-  @extend login.page;
+  padding: 40px 20px;
+  max-width: 640px;
+  margin: 0 auto;
 }
 
 .title {
-  @extend login.title;
+  margin: 0 0 20px;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .form {
-  @extend login.form;
+  background: v.$background-light;
+  border: 1px solid v.$border-color;
+  border-radius: 6px;
+  padding: 20px;
 }
 
 .field {
-  @extend login.field;
+  display: block;
+  margin-bottom: 14px;
 }
 
 .label {
-  @extend login.label;
+  display: inline-block;
+  width: 140px;
 }
 
 .input {
-  @extend login.input;
-}
-
-.button {
-  @extend login.button;
+  width: 100%;
+  max-width: 360px;
+  padding: 8px 10px;
+  border: 1px solid v.$border-color;
+  border-radius: 4px;
+  background: v.$background-white;
 }
 
 .error {
-  @extend login.error;
+  color: #c62828;
+  margin: 8px 0 12px;
+}
+
+.button {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 10px 20px;
+  background: v.$primary-color;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    background: v.$primary-hover;
+  }
 }
 
 .helper {
-  @extend login.helper;
+  margin-top: 16px;
 }
 
 .link {
-  @extend login.link;
+  color: v.$primary-color;
+  text-decoration: underline;
+}
+
+.secondary {
+  display: inline-block;
+  margin-top: 14px;
 }

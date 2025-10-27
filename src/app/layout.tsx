@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import './globals.scss'; // または './globals.css'
+import "@/styles/globals.scss";
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
 import { ShopifyCartProvider } from '@/context/ShopifyCartContext';

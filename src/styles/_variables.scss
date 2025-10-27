@@ -1,3 +1,7 @@
+// src/styles/_variables.scss
+@use './tokens' as t;
+
+// --- Brand / Theme palette（あなたの現行値をそのまま維持） ---
 $primary-color: #319304;
 $primary-hover: #5ca623;
 $background-light: #fff9e6;
@@ -5,3 +9,25 @@ $background-white: #ffffff;
 $text-dark: #333333;
 $text-medium: #666666;
 $border-color: #dddddd;
+
+// --- Spacing / Radius / Font sizes: tokensを再公開 ---
+$radius-6: t.$radius-6;
+$space-2: t.$space-2;
+$space-3: t.$space-3;
+$space-4: t.$space-4;
+$space-5: t.$space-5;
+$space-6: t.$space-6;
+
+$fs-sm: t.$fs-sm;
+$fs-md: t.$fs-md;
+$fs-lg: t.$fs-lg;
+$fs-xl: t.$fs-xl;
+
+// --- Legacy aliases（当面の互換用。後で掃除する TODO: remove-legacy-aliases） ---
+$color-border: $border-color !default;
+$color-text: $text-dark !default;
+$color-muted: $text-medium !default;
+$color-primary: $primary-color !default;
+$color-primary-hover: $primary-hover !default;
+$bg-light: $background-light !default;
+$white: #fff !default;
