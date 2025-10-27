@@ -122,6 +122,20 @@ export default function AddressesPage() {
     }
   }
 
+  // 既定にする
+  async function onSetDefault(id: number) {
+    setErr(null);
+    try {
+      setBusy(true);
+      await api(`/addresses/${id}/default`, { method: "PUT", parseErrorJson: true });
+      await load();
+    } catch (e: any) {
+      setErr(e?.data?.error ?? e?.message ?? "既定設定に失敗しました");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   // 削除
   async function onDelete(id: number) {
     if (!confirm("この住所を削除します。よろしいですか？")) return;
@@ -140,6 +154,8 @@ export default function AddressesPage() {
     <RequireLogin redirectTo={`/login?next=${encodeURIComponent("/mypage/addresses")}`}>
       <main className={styles.page}>
         <h1 className={styles.title}>配送先住所</h1>
+
+        {err && <p className={styles.error}>{err}</p>}
 
         {/* 新規追加フォーム */}
         <section className={styles.section}>
@@ -169,8 +185,6 @@ export default function AddressesPage() {
               <span className={styles.label}>電話番号</span>
               <input className={styles.input} value={createForm.phone} onChange={(e) => onChangeCreate("phone", e.target.value)} />
             </label>
-
-            {err && <p className={styles.error}>{err}</p>}
 
             <button className={styles.button} type="submit" disabled={busy}>
               {busy ? "送信中…" : "追加する"}
@@ -217,12 +231,7 @@ export default function AddressesPage() {
                       <button className={styles.button} type="submit" disabled={busy}>
                         {busy ? "更新中…" : "保存する"}
                       </button>
-                      <button
-                        type="button"
-                        className={styles.secondary}
-                        onClick={() => setEditingId(null)}
-                        disabled={busy}
-                      >
+                      <button type="button" className={styles.secondary} onClick={() => setEditingId(null)} disabled={busy}>
                         キャンセル
                       </button>
                     </div>
@@ -232,8 +241,13 @@ export default function AddressesPage() {
                     <div className={styles.header}>
                       <strong>#{a.id}</strong>
                       <div className={styles.actionRow}>
-                        <button className={styles.secondary} onClick={() => startEdit(a)}>編集</button>
-                        <button className={styles.danger} onClick={() => onDelete(a.id)}>削除</button>
+                        {a.is_default ? (
+                          <span className={styles.badgeDefault} aria-label="既定の住所">既定</span>
+                        ) : (
+                          <button className={styles.primaryGhost} onClick={() => onSetDefault(a.id)} disabled={busy}>既定にする</button>
+                        )}
+                        <button className={styles.secondary} onClick={() => startEdit(a)} disabled={busy}>編集</button>
+                        <button className={styles.danger} onClick={() => onDelete(a.id)} disabled={busy}>削除</button>
                       </div>
                     </div>
                     <ul className={styles.lines}>

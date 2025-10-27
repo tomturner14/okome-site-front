@@ -1,6 +1,9 @@
 // frontend/src/types/api.ts
 import { z } from "zod";
 
+/* =========================
+ * common: user / auth / me
+ * ========================= */
 export const UserSchema = z.object({
   id: z.number(),
   email: z.string().email(),
@@ -22,28 +25,55 @@ export const AuthOkSchema = z.object({
 });
 export type AuthOk = z.infer<typeof AuthOkSchema>;
 
-// ---- orders (list/minimal) ----
+/* ================
+ * orders (共通)
+ * ================ */
 export const OrderItemSchema = z.object({
   title: z.string(),
   quantity: z.number(),
   price: z.number(),
   image_url: z.string().optional().default(""),
 });
+export type OrderItem = z.infer<typeof OrderItemSchema>;
 
 export const OrderSchema = z.object({
   id: z.number(),
   total_price: z.number(),
-  status: z.string(),          // ひとまず string。後で enum 厳密化OK
+  status: z.string(),          // BE の enum に合わせて後で厳密化してOK
   fulfill_status: z.string(),  // 同上
-  ordered_at: z.string(),      // ISO文字列（BEで toISOString 済み）
+  ordered_at: z.string(),      // ISO 文字列想定
   items: z.array(OrderItemSchema).optional().default([]),
 });
-
-export const OrdersResponseSchema = z.array(OrderSchema);
-export type OrderItem = z.infer<typeof OrderItemSchema>;
 export type Order = z.infer<typeof OrderSchema>;
 
-// ---- addresses ----
+export const OrdersResponseSchema = z.array(OrderSchema);
+
+/* ======================
+ * order detail（単票）
+ * ====================== */
+export const OrderAddressSchema = z.object({
+  recipient_name: z.string(),
+  postal_code: z.string(),
+  address_1: z.string(),
+  address_2: z.string().optional().default(""),
+  phone: z.string(),
+});
+export type OrderAddress = z.infer<typeof OrderAddressSchema>;
+
+export const OrderDetailSchema = z.object({
+  id: z.number(),
+  total_price: z.number(),
+  status: z.string(),
+  fulfill_status: z.string(),
+  ordered_at: z.string(),
+  address: OrderAddressSchema,
+  items: z.array(OrderItemSchema).default([]),
+});
+export type OrderDetail = z.infer<typeof OrderDetailSchema>;
+
+/* ======================
+ * addresses
+ * ====================== */
 export const AddressSchema = z.object({
   id: z.number(),
   recipient_name: z.string(),
@@ -53,9 +83,11 @@ export const AddressSchema = z.object({
   phone: z.string(),
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
+  is_default: z.boolean().optional().default(false), // ★ 追加
 });
-export const AddressesResponseSchema = z.array(AddressSchema);
 export type Address = z.infer<typeof AddressSchema>;
+
+export const AddressesResponseSchema = z.array(AddressSchema);
 
 export const AddressCreateInputSchema = z.object({
   recipient_name: z.string().min(1, "宛名を入力してください"),
@@ -66,21 +98,5 @@ export const AddressCreateInputSchema = z.object({
 });
 export type AddressCreateInput = z.infer<typeof AddressCreateInputSchema>;
 
-// 更新は作成と同じ形（エイリアス）
 export const AddressUpdateInputSchema = AddressCreateInputSchema;
 export type AddressUpdateInput = z.infer<typeof AddressUpdateInputSchema>;
-
-// ---- order detail ----
-export const OrderDetailSchema = z.object({
-  id: z.number(),
-  total_price: z.number(),
-  status: z.string(),
-  fulfill_status: z.string(),
-  ordered_at: z.string(),
-  cancelled_at: z.string().nullable().optional().transform((v) => v ?? null),
-  fulfilled_at: z.string().nullable().optional().transform((v) => v ?? null),
-  items: z.array(OrderItemSchema).default([]),
-  // 住所は null の可能性あり（ゲスト／削除など）
-  address: AddressSchema.nullable().optional().transform((v) => v ?? null),
-});
-export type OrderDetail = z.infer<typeof OrderDetailSchema>;
