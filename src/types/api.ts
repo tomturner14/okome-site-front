@@ -1,9 +1,7 @@
-// frontend/src/types/api.ts
+// src/types/api.ts
 import { z } from "zod";
 
-/* =========================
- * common: user / auth / me
- * ========================= */
+/* -------- user / auth -------- */
 export const UserSchema = z.object({
   id: z.number(),
   email: z.string().email(),
@@ -25,55 +23,50 @@ export const AuthOkSchema = z.object({
 });
 export type AuthOk = z.infer<typeof AuthOkSchema>;
 
-/* ================
- * orders (共通)
- * ================ */
+/* -------- orders (list) -------- */
 export const OrderItemSchema = z.object({
   title: z.string(),
   quantity: z.number(),
   price: z.number(),
   image_url: z.string().optional().default(""),
 });
-export type OrderItem = z.infer<typeof OrderItemSchema>;
 
 export const OrderSchema = z.object({
   id: z.number(),
   total_price: z.number(),
-  status: z.string(),          // BE の enum に合わせて後で厳密化してOK
+  status: z.string(),          // BE の enum に合わせて後で厳密化OK
   fulfill_status: z.string(),  // 同上
   ordered_at: z.string(),      // ISO 文字列想定
   items: z.array(OrderItemSchema).optional().default([]),
 });
+export const OrdersResponseSchema = z.array(OrderSchema);
+export type OrderItem = z.infer<typeof OrderItemSchema>;
 export type Order = z.infer<typeof OrderSchema>;
 
-export const OrdersResponseSchema = z.array(OrderSchema);
-
-/* ======================
- * order detail（単票）
- * ====================== */
-export const OrderAddressSchema = z.object({
+/* -------- orders (detail) -------- */
+/** 注文詳細の中で返る配送先（埋め込み用・id不要） */
+export const AddressEmbeddedSchema = z.object({
   recipient_name: z.string(),
-  postal_code: z.string(),
+  postal_code: z.string(), // 7桁（ハイフンなし）想定
   address_1: z.string(),
   address_2: z.string().optional().default(""),
   phone: z.string(),
 });
-export type OrderAddress = z.infer<typeof OrderAddressSchema>;
+export type AddressEmbedded = z.infer<typeof AddressEmbeddedSchema>;
 
+/** 注文詳細本体（/api/orders/:id 用） */
 export const OrderDetailSchema = z.object({
   id: z.number(),
   total_price: z.number(),
   status: z.string(),
   fulfill_status: z.string(),
   ordered_at: z.string(),
-  address: OrderAddressSchema,
-  items: z.array(OrderItemSchema).default([]),
+  items: z.array(OrderItemSchema).optional().default([]),
+  address: AddressEmbeddedSchema, // 配送先
 });
 export type OrderDetail = z.infer<typeof OrderDetailSchema>;
 
-/* ======================
- * addresses
- * ====================== */
+/* -------- addresses -------- */
 export const AddressSchema = z.object({
   id: z.number(),
   recipient_name: z.string(),
@@ -81,13 +74,12 @@ export const AddressSchema = z.object({
   address_1: z.string(),
   address_2: z.string().optional().default(""),
   phone: z.string(),
+  is_default: z.boolean().optional().default(false),
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
-  is_default: z.boolean().optional().default(false), // ★ 追加
 });
-export type Address = z.infer<typeof AddressSchema>;
-
 export const AddressesResponseSchema = z.array(AddressSchema);
+export type Address = z.infer<typeof AddressSchema>;
 
 export const AddressCreateInputSchema = z.object({
   recipient_name: z.string().min(1, "宛名を入力してください"),
@@ -98,5 +90,6 @@ export const AddressCreateInputSchema = z.object({
 });
 export type AddressCreateInput = z.infer<typeof AddressCreateInputSchema>;
 
+// 更新（いまは作成と同じ）
 export const AddressUpdateInputSchema = AddressCreateInputSchema;
 export type AddressUpdateInput = z.infer<typeof AddressUpdateInputSchema>;
