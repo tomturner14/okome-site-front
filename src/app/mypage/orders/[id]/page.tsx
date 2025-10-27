@@ -3,84 +3,113 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import RequireLogin from "@/components/RequireLogin/RequireLogin";
 import { api } from "@/lib/api";
-import { OrderSchema, type Order } from "@/types/api";
-import styles from "./OrdersDetailPage.module.scss";
+import RequireLogin from "@/components/RequireLogin/RequireLogin";
+import { OrderDetailSchema, type OrderDetail } from "@/types/api";
+import styles from "./OrderDetailPage.module.scss";
 
 export default function OrderDetailPage() {
   const params = useParams<{ id: string }>();
+  const [data, setData] = useState<OrderDetail | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const [busy, setBusy] = useState(true);
+
   const id = Number(params?.id);
 
-  const [data, setData] = useState<Order | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
-
   useEffect(() => {
-    if (!Number.isFinite(id)) {
-      setErr("不正なIDです");
-      return;
-    }
+    let active = true;
+
     (async () => {
-      setBusy(true);
-      setErr(null);
+      if (!Number.isFinite(id)) {
+        setErr("不正な注文IDです");
+        setBusy(false);
+        return;
+      }
       try {
         const raw = await api<unknown>(`/orders/${id}`, {
           cache: "no-store",
           parseErrorJson: true,
         });
-        const order = OrderSchema.parse(raw);
-        setData(order);
+        const parsed = OrderDetailSchema.parse(raw);
+        if (active) setData(parsed);
       } catch (e: any) {
-        setErr(e?.data?.error ?? e?.message ?? "注文詳細の取得に失敗しました");
+        const msg = e?.data?.error ?? e?.message ?? "注文情報の取得に失敗しました";
+        if (active) setErr(msg);
       } finally {
-        setBusy(false);
+        if (active) setBusy(false);
       }
     })();
+
+    return () => { active = false; };
   }, [id]);
 
   return (
-    <RequireLogin redirectTo={`/login?next=${encodeURIComponent(`/mypage/orders/${id}`)}`}>
+    <RequireLogin redirectTo={`/login?next=${encodeURIComponent(`/mypage/orders/${isNaN(id) ? "" : id}`)}`}>
       <main className={styles.page}>
         <h1 className={styles.title}>注文詳細</h1>
 
-        {busy && <p className={styles.muted}>読み込み中...</p>}
+        {busy && <p>読み込み中…</p>}
         {err && <p className={styles.error}>{err}</p>}
 
-        {data && (
-          <section className={styles.card}>
-            <div className={styles.meta}>
-              <p>注文ID: {data.id}</p>
-              <p>注文日時: {new Date(data.ordered_at).toLocaleString()}</p>
-              <p>注文ステータス: {data.status}</p>
-              <p>発送ステータス: {data.fulfill_status}</p>
-              <p className={styles.total}>合計: ¥{data.total_price.toLocaleString()}</p>
-            </div>
+        {!busy && !err && data && (
+          <article className={styles.card}>
+            <header className={styles.header}>
+              <div className={styles.row}>
+                <span className={styles.key}>注文ID</span>
+                <span className={styles.val}>#{data.id}</span>
+              </div>
+              <div className={styles.row}>
+                <span className={styles.key}>注文日時</span>
+                <span className={styles.val}>{new Date(data.ordered_at).toLocaleString()}</span>
+              </div>
+              <div className={styles.row}>
+                <span className={styles.key}>ステータス</span>
+                <span className={styles.val}>{data.status} / {data.fulfill_status}</span>
+              </div>
+              <div className={styles.row}>
+                <span className={styles.key}>合計</span>
+                <span className={styles.val}>¥{data.total_price.toLocaleString()}</span>
+              </div>
+            </header>
 
-            <h2 className={styles.sectionTitle}>明細</h2>
-            {data.items?.length ? (
-              <ul className={styles.items}>
-                {data.items.map((it, idx) => (
-                  <li key={idx} className={styles.item}>
-                    {it.image_url && <img src={it.image_url} alt="" className={styles.thumb} />}
-                    <div className={styles.line}>
-                      <p className={styles.name}>{it.title}</p>
-                      <p className={styles.sub}>数量: {it.quantity} / 単価: ¥{it.price.toLocaleString()}</p>
-                    </div>
-                    <p className={styles.lineTotal}>
-                      ¥{(it.price * it.quantity).toLocaleString()}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className={styles.muted}>明細がありません。</p>
+            {data.address && (
+              <section className={styles.section}>
+                <h2 className={styles.h2}>配送先</h2>
+                <div className={styles.box}>
+                  <p className={styles.addrName}>{data.address.recipient_name}</p>
+                  <p>〒{data.address.postal_code}</p>
+                  <p>{data.address.address_1}{data.address.address_2 ? ` ${data.address.address_2}` : ""}</p>
+                  <p>{data.address.phone}</p>
+                </div>
+              </section>
             )}
-          </section>
+
+            <section className={styles.section}>
+              <h2 className={styles.h2}>注文明細</h2>
+              {data.items.length === 0 ? (
+                <p className={styles.muted}>品目がありません。</p>
+              ) : (
+                <ul className={styles.lines}>
+                  {data.items.map((it, idx) => (
+                    <li key={idx} className={styles.line}>
+                      <div className={styles.thumb} aria-hidden>
+                        {it.image_url ? <img src={it.image_url} alt="" /> : <div className={styles.noimg} />}
+                      </div>
+                      <div className={styles.lineBody}>
+                        <p className={styles.prod}>{it.title}</p>
+                        <p className={styles.meta}>数量 {it.quantity} / 単価 ¥{it.price.toLocaleString()}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </article>
         )}
 
-        <p className={styles.back}>
-          <Link href="/mypage/orders">注文履歴に戻る</Link>
+        <p className={styles.actions}>
+          <Link href="/mypage/orders" className={styles.secondary}>注文一覧に戻る</Link>
+          <Link href="/" className={styles.secondary}>トップへ戻る</Link>
         </p>
       </main>
     </RequireLogin>

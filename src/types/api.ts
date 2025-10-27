@@ -1,9 +1,10 @@
-// src/types/api.ts
+// frontend/src/types/api.ts
 import { z } from "zod";
 
 export const UserSchema = z.object({
   id: z.number(),
   email: z.string().email(),
+  // name が null/undefined のときは空文字に整形
   name: z.string().optional().nullable().transform((v) => v ?? ""),
 });
 export type User = z.infer<typeof UserSchema>;
@@ -21,24 +22,28 @@ export const AuthOkSchema = z.object({
 });
 export type AuthOk = z.infer<typeof AuthOkSchema>;
 
+// ---- orders (list/minimal) ----
 export const OrderItemSchema = z.object({
   title: z.string(),
   quantity: z.number(),
   price: z.number(),
   image_url: z.string().optional().default(""),
 });
+
 export const OrderSchema = z.object({
   id: z.number(),
   total_price: z.number(),
-  status: z.string(),
-  fulfill_status: z.string(),
-  ordered_at: z.string(),
+  status: z.string(),          // ひとまず string。後で enum 厳密化OK
+  fulfill_status: z.string(),  // 同上
+  ordered_at: z.string(),      // ISO文字列（BEで toISOString 済み）
   items: z.array(OrderItemSchema).optional().default([]),
 });
+
 export const OrdersResponseSchema = z.array(OrderSchema);
 export type OrderItem = z.infer<typeof OrderItemSchema>;
 export type Order = z.infer<typeof OrderSchema>;
 
+// ---- addresses ----
 export const AddressSchema = z.object({
   id: z.number(),
   recipient_name: z.string(),
@@ -61,6 +66,21 @@ export const AddressCreateInputSchema = z.object({
 });
 export type AddressCreateInput = z.infer<typeof AddressCreateInputSchema>;
 
-// ← 追記：更新も基本は同じ項目を要求（今回のUIは全量更新）
+// 更新は作成と同じ形（エイリアス）
 export const AddressUpdateInputSchema = AddressCreateInputSchema;
 export type AddressUpdateInput = z.infer<typeof AddressUpdateInputSchema>;
+
+// ---- order detail ----
+export const OrderDetailSchema = z.object({
+  id: z.number(),
+  total_price: z.number(),
+  status: z.string(),
+  fulfill_status: z.string(),
+  ordered_at: z.string(),
+  cancelled_at: z.string().nullable().optional().transform((v) => v ?? null),
+  fulfilled_at: z.string().nullable().optional().transform((v) => v ?? null),
+  items: z.array(OrderItemSchema).default([]),
+  // 住所は null の可能性あり（ゲスト／削除など）
+  address: AddressSchema.nullable().optional().transform((v) => v ?? null),
+});
+export type OrderDetail = z.infer<typeof OrderDetailSchema>;
