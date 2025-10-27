@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
+import { MeResponseSchema, ApiErrorSchema, type MeResponse } from "@/types/api";
 import styles from "./SessionBadge.module.scss";
-import { MeResponseSchema, type MeResponse } from "@/types/api";
 
 export default function SessionBadge() {
   const [me, setMe] = useState<MeResponse | null>(null);
@@ -15,11 +15,15 @@ export default function SessionBadge() {
     let active = true;
     (async () => {
       try {
-        const raw = await api<unknown>("/me");
-        const parsed = MeResponseSchema.parse(raw);
-        if (active) setMe(parsed);
+        // 4xx/5xx でも JSON を読めるようにして、API 側の {error, code} を拾えるように
+        const raw = await api<unknown>("/me", { parseErrorJson: true });
+        const data = MeResponseSchema.parse(raw);
+        if (active) setMe(data);
       } catch (e: any) {
-        if (active) setError(e?.message ?? "network error");
+        const parsed = ApiErrorSchema.safeParse(e?.data);
+        if (active) {
+          setError(parsed.success ? parsed.data.error : e?.message ?? "network error");
+        }
       }
     })();
     return () => {
@@ -30,14 +34,17 @@ export default function SessionBadge() {
   async function handleLogout() {
     try {
       setBusy(true);
-      await api("/auth/logout", { method: "POST" });
-    } catch {
-    } finally {
+      await api("/auth/logout", { method: "POST", parseErrorJson: true });
       location.reload();
+    } catch (e: any) {
+      const parsed = ApiErrorSchema.safeParse(e?.data);
+      setError(parsed.success ? parsed.data.error : e?.message ?? "logout failed");
+    } finally {
+      setBusy(false);
     }
   }
 
-  if (error) return <span className={styles.chip}>状態: 取得失敗</span>;
+  if (error) return <span className={styles.chip}>状態: {error}</span>;
   if (!me) return <span className={styles.chip}>状態: 読み込み中...</span>;
 
   return (
@@ -45,6 +52,7 @@ export default function SessionBadge() {
       {me.loggedIn ? (
         <>
           <span>ようこそ</span>
+          {me.user?.name ? <span className={styles.name}> {me.user.name}</span> : null}
           {typeof me.sessionPing === "number" && (
             <span className={styles.count}>・ping:{me.sessionPing}</span>
           )}
