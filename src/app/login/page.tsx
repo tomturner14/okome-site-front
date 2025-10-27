@@ -1,30 +1,48 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { z } from "zod";
 import { api } from "@/lib/api";
+import { AuthOkSchema } from "@/types/api";
 import styles from "./LoginPage.module.scss";
 
+// 入力バリデーション（最小）
+const LoginInputSchema = z.object({
+  email: z.string().email("メール形式が正しくありません"),
+  password: z.string().min(6, "パスワードは6文字以上"),
+});
+type LoginInput = z.infer<typeof LoginInputSchema>;
+
 export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [form, setForm] = useState<LoginInput>({ email: "", password: "" });
   const [err, setErr] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  function onChange<K extends keyof LoginInput>(k: K, v: string) {
+    setForm((s) => ({ ...s, [k]: v }));
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErr(null);
-    setBusy(true);
+
+    const parsed = LoginInputSchema.safeParse(form);
+    if (!parsed.success) {
+      const msg = parsed.error.issues[0]?.message ?? "入力エラー";
+      setErr(msg);
+      return;
+    }
+
     try {
-      await api("/auth/login", {
+      setBusy(true);
+      const raw = await api<unknown>("/auth/login", {
         method: "POST",
-        body: { email, password },
+        body: parsed.data,
         parseErrorJson: true,
       });
-      router.replace("/");
-      router.refresh();
+      AuthOkSchema.parse(raw);
+      location.href = "/";
     } catch (e: any) {
       setErr(e?.data?.error ?? e?.message ?? "ログインに失敗しました");
     } finally {
@@ -35,6 +53,7 @@ export default function LoginPage() {
   return (
     <main className={styles.page}>
       <h1 className={styles.title}>ログインページ</h1>
+
       <form className={styles.form} onSubmit={onSubmit}>
         <label className={styles.field}>
           <span className={styles.label}>メールアドレス:</span>
@@ -42,8 +61,8 @@ export default function LoginPage() {
             className={styles.input}
             type="email"
             autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={form.email}
+            onChange={(e) => onChange("email", e.target.value)}
             required
           />
         </label>
@@ -54,8 +73,8 @@ export default function LoginPage() {
             className={styles.input}
             type="password"
             autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={form.password}
+            onChange={(e) => onChange("password", e.target.value)}
             required
             minLength={6}
           />
