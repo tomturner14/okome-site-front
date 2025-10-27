@@ -1,9 +1,9 @@
-@use '@/styles/variables' as v;
+@use "@/styles/variables" as v;
 
 .page {
-  max-width: 900px;
+  max-width: 760px;
   margin: 0 auto;
-  padding: 32px 16px;
+  padding: 24px 16px;
 }
 
 .title {
@@ -11,12 +11,13 @@
   margin: 0 0 16px;
 }
 
-.muted {
-  color: v.$text-medium;
+.error {
+  color: #c62828;
+  margin: 8px 0 16px;
 }
 
-.error {
-  color: #b91c1c;
+.muted {
+  color: v.$text-medium;
 }
 
 .list {
@@ -29,107 +30,86 @@
 
 .card {
   border: 1px solid v.$border-color;
-  border-radius: 12px;
+  border-radius: 6px;
   background: #fff;
   padding: 12px;
+  display: grid;
+  gap: 10px;
 }
 
 .header {
   display: flex;
-  gap: 12px;
   justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 8px;
+  align-items: center;
+  font-size: 14px;
 }
 
 .orderId {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .date {
   color: v.$text-medium;
-  font-size: 14px;
 }
 
 .lines {
   list-style: none;
-  margin: 0;
   padding: 0;
+  margin: 0;
   display: grid;
   gap: 8px;
 }
 
 .line {
   display: grid;
-  grid-template-columns: 64px 1fr;
-  gap: 12px;
+  grid-template-columns: 48px 1fr auto;
   align-items: center;
+  gap: 10px;
 }
 
 .thumb {
-  width: 64px;
-  height: 64px;
-  border: 1px solid v.$border-color;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #f7f7f7;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-}
-
-.noimg {
-  width: 100%;
-  height: 100%;
+  width: 48px;
+  height: 48px;
   background: #eee;
+  border: 1px solid v.$border-color;
+  border-radius: 4px;
 }
 
-.lineBody {
+.lineMain {
   display: grid;
   gap: 2px;
 }
 
-.lineTitle {
+.prod {
   margin: 0;
   font-weight: 600;
 }
 
-.lineMeta {
+.qty {
   margin: 0;
   color: v.$text-medium;
-  font-size: 14px;
+}
+
+.price {
+  font-variant-numeric: tabular-nums;
 }
 
 .footer {
   display: flex;
   justify-content: space-between;
-  margin-top: 12px;
+  align-items: center;
+  border-top: 1px solid v.$border-color;
   padding-top: 8px;
-  border-top: 1px dashed v.$border-color;
-}
-
-.total {
-  font-weight: 700;
 }
 
 .status {
   color: v.$text-medium;
 }
 
-.actions {
-  margin-top: 24px;
-  display: flex;
-  gap: 12px;
+.total {
+  font-weight: 700;
 }
 
-.secondary {
-  display: inline-block;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid v.$border-color;
-  text-decoration: none;
+.back {
+  margin-top: 20px;
 }
