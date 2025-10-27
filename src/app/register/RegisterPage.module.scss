@@ -1,70 +1,76 @@
 @use "@/styles/variables" as v;
 
 .page {
-  padding: 40px 20px;
-  max-width: 640px;
-  margin: 0 auto;
+  max-width: 520px;
+  margin: 40px auto;
+  padding: 24px;
+  background: v.$background-white;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-6;
 }
 
 .title {
-  margin: 0 0 20px;
+  margin: 0 0 16px;
   font-size: 24px;
-  font-weight: bold;
+  color: v.$text-dark;
 }
 
 .form {
-  background: v.$background-light;
-  border: 1px solid v.$border-color;
-  border-radius: 6px;
-  padding: 20px;
+  display: grid;
+  gap: 16px;
 }
 
 .field {
-  display: block;
-  margin-bottom: 14px;
+  display: grid;
+  gap: 6px;
 }
 
 .label {
-  display: inline-block;
-  width: 140px;
+  font-size: v.$fs-sm;
+  color: v.$text-medium;
 }
 
 .input {
-  width: 100%;
-  max-width: 360px;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border: 1px solid v.$border-color;
-  border-radius: 4px;
-  background: v.$background-white;
+  border-radius: v.$radius-6;
+  font-size: v.$fs-md;
+  outline: none;
+
+  &:focus {
+    border-color: v.$primary-color;
+  }
 }
 
 .error {
-  color: #c62828;
-  margin: 8px 0 12px;
+  margin: 0;
+  color: #c0392b;
+  font-size: v.$fs-sm;
 }
 
 .button {
-  display: inline-block;
-  margin-top: 8px;
-  padding: 10px 20px;
-  background: v.$primary-color;
-  color: white;
+  padding: 10px 16px;
   border: none;
-  border-radius: 6px;
+  border-radius: v.$radius-6;
+  background: v.$primary-color;
+  color: #fff;
   cursor: pointer;
+  font-size: v.$fs-md;
 
   &:disabled {
-    opacity: .6;
+    opacity: 0.6;
     cursor: not-allowed;
   }
 
-  &:not(:disabled):hover {
+  &:hover:not(:disabled) {
     background: v.$primary-hover;
   }
 }
 
 .helper {
-  margin-top: 16px;
+  margin: 8px 0 0;
+  font-size: v.$fs-sm;
+  color: v.$text-medium;
 }
 
 .link {
@@ -74,5 +80,7 @@
 
 .secondary {
   display: inline-block;
-  margin-top: 14px;
+  margin-top: 12px;
+  font-size: v.$fs-sm;
+  color: v.$text-medium;
 }
