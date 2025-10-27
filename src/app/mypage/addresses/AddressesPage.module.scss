@@ -1,32 +1,34 @@
 @use '@/styles/variables' as v;
 
 .page {
-  padding: 24px 16px;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 16px;
 }
 
 .title {
   font-size: 24px;
-  margin: 0 0 8px;
-}
-
-.breadcrumb {
   margin: 0 0 16px;
-  color: v.$text-medium;
 }
 
 .section {
   margin-top: 24px;
 }
 
-.h2 {
+.sectionTitle {
   font-size: 18px;
-  margin: 0 0 12px;
+  margin: 0 0 8px;
+}
+
+.muted {
+  color: v.$text-medium;
 }
 
 .form {
   display: grid;
+  grid-template-columns: 1fr;
   gap: 12px;
-  max-width: 520px;
+  margin: 12px 0 20px;
 }
 
 .field {
@@ -35,19 +37,19 @@
 }
 
 .label {
-  color: v.$text-medium;
   font-size: 14px;
+  color: v.$text-medium;
 }
 
 .input {
+  padding: 8px 10px;
   border: 1px solid v.$border-color;
   border-radius: 6px;
-  padding: 10px 12px;
 }
 
 .button {
-  display: inline-block;
-  padding: 10px 16px;
+  width: fit-content;
+  padding: 8px 16px;
   border: none;
   border-radius: 6px;
   background: v.$primary-color;
@@ -61,52 +63,55 @@
 
 .error {
   color: #b00020;
+  background: #ffeaea;
+  border: 1px solid #f0b3b3;
+  padding: 8px 10px;
+  border-radius: 6px;
 }
 
-.muted {
-  color: v.$text-medium;
-}
-
-.list {
+.items {
   list-style: none;
-  margin: 0;
   padding: 0;
+  margin: 0;
   display: grid;
   gap: 12px;
 }
 
-.item {
+.card {
   border: 1px solid v.$border-color;
   border-radius: 6px;
-  background: #fff;
   padding: 12px;
+  background: #fff;
 }
 
-.itemHead {
+.row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
+  justify-content: space-between;
 }
 
 .name {
-  font-weight: 600;
+  font-weight: bold;
 }
 
-.delete {
-  border: 1px solid v.$border-color;
-  border-radius: 6px;
+.addr {
+  margin-top: 6px;
+}
+
+.phone {
+  margin-top: 2px;
+  color: v.$text-medium;
+}
+
+.danger {
+  border: 1px solid #e11d48;
   background: #fff;
+  color: #e11d48;
+  border-radius: 6px;
   padding: 6px 10px;
   cursor: pointer;
 
   &:hover {
-    background: #fafafa;
+    background: #fff5f7;
   }
-}
-
-.body {
-  color: v.$text-dark;
-  display: grid;
-  gap: 2px;
 }
