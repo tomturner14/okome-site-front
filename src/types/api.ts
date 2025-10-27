@@ -8,6 +8,8 @@ export const UserSchema = z.object({
   name: z.string().optional().nullable().transform((v) => v ?? ""),
 });
 
+export type User = z.infer<typeof UserSchema>;
+
 export const MeResponseSchema = z.object({
   loggedIn: z.boolean(),
   sessionPing: z.number().optional(),
@@ -41,3 +43,28 @@ export const OrderSchema = z.object({
 export const OrdersResponseSchema = z.array(OrderSchema);
 export type OrderItem = z.infer<typeof OrderItemSchema>;
 export type Order = z.infer<typeof OrderSchema>;
+
+export const AddressSchema = z.object({
+  id: z.number(),
+  recipient_name: z.string(),
+  postal_code: z.string().regex(/^\d{7}$/, "郵便番号は7桁（数字のみ）"),
+  address_1: z.string(),
+  address_2: z.string().optional().default(""),
+  phone: z.string(),
+  created_at: z.string().optional(),
+  updated_at: z.string().optional(),
+});
+
+export const AddressesResponseSchema = z.array(AddressSchema);
+export type Address = z.infer<typeof AddressSchema>;
+
+export const AddressCreateInputSchema = z.object({
+  recipient_name: z.string().min(1, "宛名を入力してください"),
+  postal_code: z
+    .string()
+    .regex(/^\d{7}$/, "郵便番号は7桁（数字のみ）"),
+  address_1: z.string().min(1, "住所を入力してください"),
+  address_2: z.string().optional().transform((v) => v ?? ""),
+  phone: z.string().min(8, "電話番号を入力してください"),
+});
+export type AddressCreateInput = z.infer<typeof AddressCreateInputSchema>;
