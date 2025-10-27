@@ -5,6 +5,7 @@ import Link from "next/link";
 import { api } from "@/lib/api";
 import RequireLogin from "@/components/RequireLogin/RequireLogin";
 import { OrdersResponseSchema, type Order } from "@/types/api";
+import { formatDateTime, formatPrice } from "@/lib/format";
 import styles from "./OrdersPage.module.scss";
 
 export default function OrdersPage() {
@@ -56,9 +57,7 @@ export default function OrdersPage() {
                       注文ID: {o.id}
                     </Link>
                   </span>
-                  <span className={styles.date}>
-                    {new Date(o.ordered_at).toLocaleString()}
-                  </span>
+                  <span className={styles.date}>{formatDateTime(o.ordered_at)}</span>
                 </div>
 
                 <ul className={styles.lines}>
@@ -69,7 +68,7 @@ export default function OrdersPage() {
                         <p className={styles.prod}>{it.title}</p>
                         <p className={styles.qty}>数量: {it.quantity}</p>
                       </div>
-                      <div className={styles.price}>¥{it.price.toLocaleString()}</div>
+                      <div className={styles.price}>{formatPrice(it.price)}</div>
                     </li>
                   ))}
                 </ul>
@@ -78,7 +77,7 @@ export default function OrdersPage() {
                   <span className={styles.status}>
                     支払: {o.status} / 発送: {o.fulfill_status}
                   </span>
-                  <span className={styles.total}>合計 ¥{o.total_price.toLocaleString()}</span>
+                  <span className={styles.total}>合計 {formatPrice(o.total_price)}</span>
                 </div>
 
                 <div className={styles.actions}>

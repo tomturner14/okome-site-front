@@ -6,6 +6,7 @@ import Link from "next/link";
 import { api } from "@/lib/api";
 import RequireLogin from "@/components/RequireLogin/RequireLogin";
 import { OrderDetailSchema, type OrderDetail } from "@/types/api";
+import { formatDateTime, formatPrice, formatPostal7 } from "@/lib/format";
 import styles from "./OrderDetailPage.module.scss";
 
 export default function OrderDetailPage() {
@@ -60,7 +61,7 @@ export default function OrderDetailPage() {
               </div>
               <div className={styles.row}>
                 <span className={styles.key}>注文日時</span>
-                <span className={styles.val}>{new Date(data.ordered_at).toLocaleString()}</span>
+                <span className={styles.val}>{formatDateTime(data.ordered_at)}</span>
               </div>
               <div className={styles.row}>
                 <span className={styles.key}>ステータス</span>
@@ -68,7 +69,7 @@ export default function OrderDetailPage() {
               </div>
               <div className={styles.row}>
                 <span className={styles.key}>合計</span>
-                <span className={styles.val}>¥{data.total_price.toLocaleString()}</span>
+                <span className={styles.val}>{formatPrice(data.total_price)}</span>
               </div>
             </header>
 
@@ -77,7 +78,7 @@ export default function OrderDetailPage() {
                 <h2 className={styles.h2}>配送先</h2>
                 <div className={styles.box}>
                   <p className={styles.addrName}>{data.address.recipient_name}</p>
-                  <p>〒{data.address.postal_code}</p>
+                  <p>〒{formatPostal7(data.address.postal_code)}</p>
                   <p>{data.address.address_1}{data.address.address_2 ? ` ${data.address.address_2}` : ""}</p>
                   <p>{data.address.phone}</p>
                 </div>
@@ -97,7 +98,7 @@ export default function OrderDetailPage() {
                       </div>
                       <div className={styles.lineBody}>
                         <p className={styles.prod}>{it.title}</p>
-                        <p className={styles.meta}>数量 {it.quantity} / 単価 ¥{it.price.toLocaleString()}</p>
+                        <p className={styles.meta}>数量 {it.quantity} / 単価 {formatPrice(it.price)}</p>
                       </div>
                     </li>
                   ))}

@@ -6,11 +6,10 @@ import { api } from "@/lib/api";
 import {
   MeResponseSchema,
   type MeResponse,
-} from "@/types/api";
-import {
   OrdersResponseSchema,
   type Order,
 } from "@/types/api";
+import { formatDateTime, formatPrice } from "@/lib/format";
 import styles from "./MyPage.module.scss";
 
 export default function MyPage() {
@@ -56,7 +55,7 @@ export default function MyPage() {
 
   if (busy) return <main className={styles.page}>読み込み中...</main>;
   if (err) return <main className={styles.page}><p className={styles.error}>{err}</p></main>;
-  if (!me?.user) return null; // 直前でリダイレクト済み
+  if (!me?.user) return null;
 
   return (
     <main className={styles.page}>
@@ -82,12 +81,12 @@ export default function MyPage() {
                 <div className={styles.orderHead}>
                   <span className={styles.orderId}># {o.id}</span>
                   <span className={styles.orderDate}>
-                    {new Date(o.ordered_at).toLocaleString()}
+                    {formatDateTime(o.ordered_at)}
                   </span>
                 </div>
 
                 <div className={styles.orderMeta}>
-                  <span>合計: {o.total_price.toLocaleString()} 円</span>
+                  <span>合計: {formatPrice(o.total_price)}</span>
                   <span>支払: {o.status}</span>
                   <span>発送: {o.fulfill_status}</span>
                 </div>
@@ -102,7 +101,7 @@ export default function MyPage() {
                         <div className={styles.itemBody}>
                           <p className={styles.itemTitle}>{it.title}</p>
                           <p className={styles.itemSub}>
-                            {it.quantity} 点 × {it.price.toLocaleString()} 円
+                            {it.quantity} 点 × {formatPrice(it.price)}
                           </p>
                         </div>
                       </li>
