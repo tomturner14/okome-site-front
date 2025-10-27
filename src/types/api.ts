@@ -67,4 +67,5 @@ export const AddressCreateInputSchema = z.object({
   address_2: z.string().optional().transform((v) => v ?? ""),
   phone: z.string().min(8, "電話番号を入力してください"),
 });
+export const AddressUpdateInputSchema = AddressCreateInputSchema;
 export type AddressCreateInput = z.infer<typeof AddressCreateInputSchema>;
