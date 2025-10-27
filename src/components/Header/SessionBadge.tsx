@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
-import { MeResponseSchema, ApiErrorSchema, type MeResponse } from "@/types/api";
+import { MeResponseSchema, type MeResponse } from "@/types/api";
 import styles from "./SessionBadge.module.scss";
 
 export default function SessionBadge() {
@@ -11,48 +11,52 @@ export default function SessionBadge() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  async function load() {
+    setError(null);
+    try {
+      const raw = await api<unknown>("/me");
+      const parsed = MeResponseSchema.parse(raw);
+      setMe(parsed);
+    } catch (e: any) {
+      setMe(null);
+      setError(e?.message ?? "状態取得に失敗しました");
+    }
+  }
+
   useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        // 4xx/5xx でも JSON を読めるようにして、API 側の {error, code} を拾えるように
-        const raw = await api<unknown>("/me", { parseErrorJson: true });
-        const data = MeResponseSchema.parse(raw);
-        if (active) setMe(data);
-      } catch (e: any) {
-        const parsed = ApiErrorSchema.safeParse(e?.data);
-        if (active) {
-          setError(parsed.success ? parsed.data.error : e?.message ?? "network error");
-        }
-      }
-    })();
-    return () => {
-      active = false;
-    };
+    load();
   }, []);
 
   async function handleLogout() {
     try {
       setBusy(true);
-      await api("/auth/logout", { method: "POST", parseErrorJson: true });
-      location.reload();
-    } catch (e: any) {
-      const parsed = ApiErrorSchema.safeParse(e?.data);
-      setError(parsed.success ? parsed.data.error : e?.message ?? "logout failed");
+      await api("/auth/logout", { method: "POST" });
     } finally {
-      setBusy(false);
+      location.reload();
     }
   }
 
-  if (error) return <span className={styles.chip}>状態: {error}</span>;
-  if (!me) return <span className={styles.chip}>状態: 読み込み中...</span>;
+  if (error) {
+    return (
+      <span className={styles.chip} role="status" aria-live="polite">
+        状態: 取得失敗
+        <button type="button" className={styles.btn} onClick={load}>
+          再試行
+        </button>
+      </span>
+    );
+  }
+
+  if (!me) {
+    return <span className={styles.chip}>状態: 読み込み中...</span>;
+  }
 
   return (
     <span className={styles.chip} role="status" aria-live="polite">
       {me.loggedIn ? (
         <>
           <span>ようこそ</span>
-          {me.user?.name ? <span className={styles.name}> {me.user.name}</span> : null}
+          {me.user?.name ? <span> {me.user.name}</span> : null}
           {typeof me.sessionPing === "number" && (
             <span className={styles.count}>・ping:{me.sessionPing}</span>
           )}
