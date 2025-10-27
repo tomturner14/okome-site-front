@@ -1,15 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { z } from "zod";
 import Link from "next/link";
 import { api } from "@/lib/api";
-import { Address, AddressesResponseSchema, AddressCreateInputSchema, AddressUpdateInputSchema } from "@/types/api";
 import RequireLogin from "@/components/RequireLogin/RequireLogin";
+import {
+  AddressesResponseSchema,
+  Address,
+  AddressCreateInputSchema,
+  AddressUpdateInputSchema,
+  type AddressCreateInput,
+  type AddressUpdateInput,
+} from "@/types/api";
 import styles from "./AddressesPage.module.scss";
 
-type CreateForm = z.infer<typeof AddressCreateInputSchema>;
-type UpdateForm = z.infer<typeof AddressUpdateInputSchema>;
+type CreateForm = AddressCreateInput;
+type UpdateForm = AddressUpdateInput;
 
 export default function AddressesPage() {
   const [items, setItems] = useState<Address[]>([]);
@@ -35,47 +41,42 @@ export default function AddressesPage() {
     phone: "",
   });
 
-  function onChangeCreate<K extends keyof CreateForm>(k: K, v: string) {
-    setCreateForm((s) => ({ ...s, [k]: v }));
-  }
-  function onChangeEdit<K extends keyof UpdateForm>(k: K, v: string) {
-    setEditForm((s) => ({ ...s, [k]: v }));
-  }
-
+  // 一覧取得
   async function load() {
-    setBusy(true);
     setErr(null);
+    setBusy(true);
     try {
-      const raw = await api<unknown>("/addresses", { method: "GET", cache: "no-store" as any });
-      const data = AddressesResponseSchema.parse(raw);
-      setItems(data);
+      const raw = await api<unknown>("/addresses", { cache: "no-store", parseErrorJson: true });
+      const list = AddressesResponseSchema.parse(raw);
+      setItems(list);
     } catch (e: any) {
-      setErr(e?.message ?? "住所一覧の取得に失敗しました");
+      setErr(e?.data?.error ?? e?.message ?? "住所の取得に失敗しました");
     } finally {
       setBusy(false);
     }
   }
 
   useEffect(() => {
-    (async () => { await load(); })();
+    load();
   }, []);
 
-  // 追加
+  // 作成
   async function onCreate(e: React.FormEvent) {
     e.preventDefault();
-    setErr(null);
-
     const parsed = AddressCreateInputSchema.safeParse(createForm);
     if (!parsed.success) {
       setErr(parsed.error.issues[0]?.message ?? "入力エラー");
       return;
     }
-
+    setBusy(true);
     try {
-      setBusy(true);
-      await api("/addresses", { method: "POST", body: parsed.data, parseErrorJson: true });
+      const created = await api<Address>("/addresses", {
+        method: "POST",
+        body: parsed.data,
+        parseErrorJson: true,
+      });
+      setItems((s) => [created, ...s]);
       setCreateForm({ recipient_name: "", postal_code: "", address_1: "", address_2: "", phone: "" });
-      await load();
     } catch (e: any) {
       setErr(e?.data?.error ?? e?.message ?? "登録に失敗しました");
     } finally {
@@ -84,7 +85,7 @@ export default function AddressesPage() {
   }
 
   // 編集開始
-  function startEdit(a: Address) {
+  function beginEdit(a: Address) {
     setEditingId(a.id);
     setEditForm({
       recipient_name: a.recipient_name,
@@ -106,11 +107,15 @@ export default function AddressesPage() {
       return;
     }
 
+    setBusy(true);
     try {
-      setBusy(true);
-      await api(`/addresses/${editingId}`, { method: "PUT", body: parsed.data, parseErrorJson: true });
+      const updated = await api<Address>(`/addresses/${editingId}`, {
+        method: "PUT",
+        body: parsed.data,
+        parseErrorJson: true,
+      });
+      setItems((s) => s.map((x) => (x.id === updated.id ? updated : x)));
       setEditingId(null);
-      await load();
     } catch (e: any) {
       setErr(e?.data?.error ?? e?.message ?? "更新に失敗しました");
     } finally {
@@ -120,11 +125,11 @@ export default function AddressesPage() {
 
   // 削除
   async function onDelete(id: number) {
-    if (!confirm("この住所を削除します。よろしいですか？")) return;
+    if (!confirm("この住所を削除しますか？")) return;
+    setBusy(true);
     try {
-      setBusy(true);
       await api(`/addresses/${id}`, { method: "DELETE", parseErrorJson: true });
-      await load();
+      setItems((s) => s.filter((x) => x.id !== id));
     } catch (e: any) {
       setErr(e?.data?.error ?? e?.message ?? "削除に失敗しました");
     } finally {
@@ -137,118 +142,139 @@ export default function AddressesPage() {
       <main className={styles.page}>
         <h1 className={styles.title}>配送先住所</h1>
 
-        {/* 新規追加フォーム */}
-        <section className={styles.section}>
+        {err && <p className={styles.error}>{err}</p>}
+
+        {/* 新規作成 */}
+        <section>
           <h2 className={styles.sectionTitle}>新規追加</h2>
-          <form className={styles.form} onSubmit={onCreate}>
-            <label className={styles.field}>
-              <span className={styles.label}>宛名</span>
-              <input className={styles.input} value={createForm.recipient_name} onChange={(e) => onChangeCreate("recipient_name", e.target.value)} required />
+          <form className={styles.card} onSubmit={onCreate}>
+            <label>
+              宛名
+              <input
+                value={createForm.recipient_name}
+                onChange={(e) => setCreateForm({ ...createForm, recipient_name: e.target.value })}
+                required
+              />
+            </label>
+            <label>
+              郵便番号（数字7桁）
+              <input
+                value={createForm.postal_code}
+                onChange={(e) => setCreateForm({ ...createForm, postal_code: e.target.value })}
+                required
+                pattern="\d{7}"
+              />
+            </label>
+            <label>
+              住所1
+              <input
+                value={createForm.address_1}
+                onChange={(e) => setCreateForm({ ...createForm, address_1: e.target.value })}
+                required
+              />
+            </label>
+            <label>
+              住所2（任意）
+              <input
+                value={createForm.address_2 ?? ""}
+                onChange={(e) => setCreateForm({ ...createForm, address_2: e.target.value })}
+              />
+            </label>
+            <label>
+              電話番号
+              <input
+                value={createForm.phone}
+                onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })}
+                required
+              />
             </label>
 
-            <label className={styles.field}>
-              <span className={styles.label}>郵便番号（7桁）</span>
-              <input className={styles.input} value={createForm.postal_code} onChange={(e) => onChangeCreate("postal_code", e.target.value)} inputMode="numeric" pattern="\d{7}" required />
-            </label>
-
-            <label className={styles.field}>
-              <span className={styles.label}>住所1</span>
-              <input className={styles.input} value={createForm.address_1} onChange={(e) => onChangeCreate("address_1", e.target.value)} required />
-            </label>
-
-            <label className={styles.field}>
-              <span className={styles.label}>住所2（任意）</span>
-              <input className={styles.input} value={createForm.address_2 ?? ""} onChange={(e) => onChangeCreate("address_2", e.target.value)} />
-            </label>
-
-            <label className={styles.field}>
-              <span className={styles.label}>電話番号</span>
-              <input className={styles.input} value={createForm.phone} onChange={(e) => onChangeCreate("phone", e.target.value)} />
-            </label>
-
-            {err && <p className={styles.error}>{err}</p>}
-
-            <button className={styles.button} type="submit" disabled={busy}>
-              {busy ? "送信中…" : "追加する"}
+            <button className={styles.primary} type="submit" disabled={busy}>
+              追加
             </button>
           </form>
         </section>
 
-        {/* 一覧 & 編集 */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>登録済み</h2>
+        {/* 一覧＋編集 */}
+        <section>
+          <h2 className={styles.sectionTitle}>登録済み住所</h2>
 
-          {busy && <p className={styles.muted}>読み込み中…</p>}
-          {!busy && items.length === 0 && <p className={styles.muted}>まだ住所はありません。</p>}
+          {items.length === 0 ? (
+            <p className={styles.muted}>登録済みの住所はありません。</p>
+          ) : (
+            <ul className={styles.list}>
+              {items.map((a) => (
+                <li key={a.id} className={styles.card}>
+                  {editingId === a.id ? (
+                    <form onSubmit={onUpdate} className={styles.editForm}>
+                      <label>
+                        宛名
+                        <input
+                          value={editForm.recipient_name}
+                          onChange={(e) => setEditForm({ ...editForm, recipient_name: e.target.value })}
+                          required
+                        />
+                      </label>
+                      <label>
+                        郵便番号
+                        <input
+                          value={editForm.postal_code}
+                          onChange={(e) => setEditForm({ ...editForm, postal_code: e.target.value })}
+                          required
+                          pattern="\d{7}"
+                        />
+                      </label>
+                      <label>
+                        住所1
+                        <input
+                          value={editForm.address_1}
+                          onChange={(e) => setEditForm({ ...editForm, address_1: e.target.value })}
+                          required
+                        />
+                      </label>
+                      <label>
+                        住所2
+                        <input
+                          value={editForm.address_2 ?? ""}
+                          onChange={(e) => setEditForm({ ...editForm, address_2: e.target.value })}
+                        />
+                      </label>
+                      <label>
+                        電話番号
+                        <input
+                          value={editForm.phone}
+                          onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                          required
+                        />
+                      </label>
 
-          <ul className={styles.items}>
-            {items.map((a) => (
-              <li key={a.id} className={styles.card}>
-                {editingId === a.id ? (
-                  <form className={styles.editForm} onSubmit={onUpdate}>
-                    <div className={styles.lines}>
-                      <label className={styles.field}>
-                        <span className={styles.label}>宛名</span>
-                        <input className={styles.input} value={editForm.recipient_name} onChange={(e) => onChangeEdit("recipient_name", e.target.value)} required />
-                      </label>
-                      <label className={styles.field}>
-                        <span className={styles.label}>郵便番号</span>
-                        <input className={styles.input} value={editForm.postal_code} onChange={(e) => onChangeEdit("postal_code", e.target.value)} inputMode="numeric" pattern="\d{7}" required />
-                      </label>
-                      <label className={styles.field}>
-                        <span className={styles.label}>住所1</span>
-                        <input className={styles.input} value={editForm.address_1} onChange={(e) => onChangeEdit("address_1", e.target.value)} required />
-                      </label>
-                      <label className={styles.field}>
-                        <span className={styles.label}>住所2</span>
-                        <input className={styles.input} value={editForm.address_2 ?? ""} onChange={(e) => onChangeEdit("address_2", e.target.value)} />
-                      </label>
-                      <label className={styles.field}>
-                        <span className={styles.label}>電話番号</span>
-                        <input className={styles.input} value={editForm.phone} onChange={(e) => onChangeEdit("phone", e.target.value)} />
-                      </label>
-                    </div>
-
-                    <div className={styles.actions}>
-                      <button className={styles.button} type="submit" disabled={busy}>
-                        {busy ? "更新中…" : "保存する"}
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.secondary}
-                        onClick={() => setEditingId(null)}
-                        disabled={busy}
-                      >
-                        キャンセル
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <>
-                    <div className={styles.header}>
-                      <strong>#{a.id}</strong>
-                      <div className={styles.actionRow}>
-                        <button className={styles.secondary} onClick={() => startEdit(a)}>編集</button>
+                      <div className={styles.actions}>
+                        <button className={styles.primary} type="submit" disabled={busy}>更新</button>
+                        <button type="button" onClick={() => setEditingId(null)}>キャンセル</button>
+                      </div>
+                    </form>
+                  ) : (
+                    <>
+                      <div className={styles.rowMain}>
+                        <p className={styles.name}>{a.recipient_name}</p>
+                        <p className={styles.addr}>
+                          〒{a.postal_code}　{a.address_1} {a.address_2}
+                        </p>
+                        <p className={styles.phone}>{a.phone}</p>
+                      </div>
+                      <div className={styles.actions}>
+                        <button onClick={() => beginEdit(a)}>編集</button>
                         <button className={styles.danger} onClick={() => onDelete(a.id)}>削除</button>
                       </div>
-                    </div>
-                    <ul className={styles.lines}>
-                      <li>{a.recipient_name}</li>
-                      <li>{a.postal_code}</li>
-                      <li>{a.address_1}</li>
-                      {a.address_2 && <li>{a.address_2}</li>}
-                      <li>{a.phone}</li>
-                    </ul>
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
-        <p className={styles.helper}>
-          <Link href="/mypage" className={styles.link}>マイページに戻る</Link>
-        </p>
+        <p className={styles.back}><Link href="/mypage">マイページに戻る</Link></p>
       </main>
     </RequireLogin>
   );
