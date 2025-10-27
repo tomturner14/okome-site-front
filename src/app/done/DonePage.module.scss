@@ -1,29 +1,71 @@
-@use '@/styles/variables' as *;
+@use '@/styles/variables' as v;
 
-.wrapper {
-  text-align: center;
-  padding: 40px 20px;
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 16px;
 }
 
-.paymentInfo {
-  background-color: #f9f9f9;
-  padding: 20px;
-  margin-top: 20px;
-  border-radius: 6px;
+.title {
+  font-size: 24px;
+  margin: 0 0 12px;
+}
+
+.lead {
+  margin: 0 0 16px;
+  color: v.$text-dark;
+}
+
+.summary {
+  border: 1px solid v.$border-color;
+  border-radius: 8px;
+  background: #fff;
+  padding: 12px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px dashed v.$border-color;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.key {
+  width: 100px;
+  color: v.$text-medium;
+}
+
+.val {
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.primary {
   display: inline-block;
-}
-
-.returnButton {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: $primary-color;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: v.$primary-color;
+  color: #fff;
   text-decoration: none;
-  cursor: pointer;
 
   &:hover {
-    background-color: $primary-hover;
+    background: v.$primary-hover;
   }
+}
+
+.secondary {
+  display: inline-block;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid v.$border-color;
+  text-decoration: none;
 }

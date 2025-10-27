@@ -1,70 +1,70 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useShopifyCart } from '@/context/ShopifyCartContext';
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import styles from "./ConfirmPage.module.scss";
 
+/**
+ * Shopify からの戻りを受ける簡易確認ページ。
+ * - 受け取りうるクエリ例:
+ *   ?order_number=1234 / ?order_id=999 / ?name=#1234 / ?shopify_order_id=xxxx
+ * - ここではバックエンド照会は行わず、注文番号などを表示して
+ *   「マイページの注文履歴をご確認ください」に誘導する最小実装。
+ */
 export default function ConfirmPage() {
-  const [info, setInfo] = useState<any>(null);
-  const { checkoutId, getCart } = useShopifyCart();
-  const router = useRouter();
+  const sp = useSearchParams();
 
-  useEffect(() => {
-    const data = localStorage.getItem('deliveryInfo');
-    if (data) {
-      setInfo(JSON.parse(data));
-    }
-  }, []);
+  const orderNumber =
+    sp.get("order_number") ||
+    sp.get("name") ||
+    sp.get("order") ||
+    sp.get("orderName") ||
+    "";
 
-  const handleOrderSubmit = async () => {
-    if (!checkoutId) {
-      alert('カートが見つかりません。');
-      return;
-    }
-
-    try {
-      const cart = await getCart(checkoutId);
-      const checkoutUrl = cart?.webUrl;
-
-      if (checkoutUrl) {
-        // 本番ではここで注文情報と一緒に送信処理なども入れる
-        console.log('注文情報:', info);
-        window.location.href = checkoutUrl; // Shopifyの支払い画面へ遷移
-      } else {
-        alert('支払い画面の取得に失敗しました。');
-      }
-    } catch (error) {
-      console.error('checkoutへの遷移中にエラー:', error);
-      alert('注文処理に失敗しました。');
-    }
-  };
-
-  if (!info) return <p>読み込み中...</p>;
+  const orderId =
+    sp.get("order_id") ||
+    sp.get("id") ||
+    sp.get("shopify_order_id") ||
+    "";
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>ご注文内容の確認</h2>
-      <p><strong>氏名:</strong> {info.name}</p>
-      <p><strong>住所:</strong> {info.address}</p>
-      <p><strong>電話番号:</strong> {info.phone}</p>
-      <p><strong>メール:</strong> {info.email}</p>
+    <main className={styles.page}>
+      <h1 className={styles.title}>決済の確認中です</h1>
 
-      <div style={{ marginTop: '30px', textAlign: 'left' }}>
-        <button
-          onClick={handleOrderSubmit}
-          style={{
-            backgroundColor: '#319304',
-            color: 'white',
-            padding: '12px 24px',
-            fontSize: '16px',
-            borderRadius: '6px',
-            border: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          注文を確定する（決済画面へ）
-        </button>
+      <p className={styles.lead}>
+        決済・在庫の確認が完了すると、注文履歴に反映されます。
+      </p>
+
+      {(orderNumber || orderId) && (
+        <div className={styles.info}>
+          {orderNumber && (
+            <p className={styles.row}>
+              <span className={styles.key}>注文番号</span>
+              <span className={styles.val}>{orderNumber}</span>
+            </p>
+          )}
+          {orderId && (
+            <p className={styles.row}>
+              <span className={styles.key}>注文ID</span>
+              <span className={styles.val}>{orderId}</span>
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className={styles.actions}>
+        <Link href="/mypage/orders" className={styles.primary}>
+          注文履歴を開く
+        </Link>
+        <Link href="/" className={styles.secondary}>
+          トップへ戻る
+        </Link>
       </div>
-    </div>
+
+      <p className={styles.help}>
+        反映まで数分かかる場合があります。反映されない場合は、
+        少し時間をおいてから再度お試しください。
+      </p>
+    </main>
   );
 }

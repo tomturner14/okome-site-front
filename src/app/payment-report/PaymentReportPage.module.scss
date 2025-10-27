@@ -1,59 +1,72 @@
-@use '@/styles/variables' as *;
+@use '@/styles/variables' as v;
 
-.wrapper {
-  padding: 40px 20px;
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 16px;
 }
 
-.form {
-  max-width: 400px;
-  margin: auto;
+.title {
+  font-size: 24px;
+  margin: 0 0 12px;
 }
 
-.field {
-  margin-bottom: 16px;
-
-  label {
-    display: flex;
-    flex-direction: column;
-    font-weight: bold;
-  }
-
-  input {
-    margin-top: 6px;
-    padding: 8px;
-    border: 1px solid $border-color;
-    border-radius: 4px;
-  }
+.lead {
+  margin: 0 0 16px;
+  color: v.$text-dark;
 }
 
-.submitButton {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: $primary-color;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: center;
+.box {
+  border: 1px solid v.$border-color;
+  border-radius: 8px;
+  background: #fff;
+  padding: 12px;
+  margin: 12px 0;
+}
 
-  &:hover {
-    background-color: $primary-hover;
+.row {
+  display: flex;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px dashed v.$border-color;
+
+  &:last-child {
+    border-bottom: 0;
   }
 }
 
-.linkArea {
-  margin-top: 20px;
-  text-align: center;
+.key {
+  width: 100px;
+  color: v.$text-medium;
 }
 
-.linkButton {
-  padding: 10px 20px;
-  background-color: $primary-color;
-  color: white;
+.val {
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.primary {
+  display: inline-block;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: v.$primary-color;
+  color: #fff;
   text-decoration: none;
-  border-radius: 6px;
 
   &:hover {
-    background-color: $primary-hover;
+    background: v.$primary-hover;
   }
+}
+
+.secondary {
+  display: inline-block;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid v.$border-color;
+  text-decoration: none;
 }

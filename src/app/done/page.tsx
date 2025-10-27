@@ -1,26 +1,56 @@
-import Link from 'next/link';
+"use client";
 
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import styles from "./DonePage.module.scss";
+
+/**
+ * 決済完了（Thank you）後に戻ってくる想定の完了ページ。
+ * 最小表示：お礼メッセージ＋注文番号（あれば）＋遷移リンク。
+ */
 export default function DonePage() {
+  const sp = useSearchParams();
+  const orderNumber =
+    sp.get("order_number") ||
+    sp.get("name") ||
+    sp.get("order") ||
+    sp.get("orderName") ||
+    "";
+  const orderId = sp.get("order_id") || sp.get("id") || "";
+
   return (
-    <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-      <h2>ご注文ありがとうございました！</h2>
-      <p>ご注文内容を確認のうえ、以下の口座へご入金ください。</p>
+    <main className={styles.page}>
+      <h1 className={styles.title}>ご注文ありがとうございました</h1>
+      <p className={styles.lead}>
+        ご注文内容は「注文履歴」からいつでもご確認いただけます。
+        確認メールも送信されますのでご確認ください。
+      </p>
 
-      <div style={{
-        background: '#f9f9f9',
-        padding: '20px',
-        marginTop: '20px',
-        display: 'inline-block'
-      }}>
-        <p><strong>銀行名：</strong>〇〇銀行</p>
-        <p><strong>支店名：</strong>△△支店</p>
-        <p><strong>口座番号：</strong>1234567</p>
-        <p><strong>名義：</strong>オコメハンバイ（カ）</p>
-      </div>
+      {(orderNumber || orderId) && (
+        <div className={styles.summary}>
+          {orderNumber && (
+            <p className={styles.row}>
+              <span className={styles.key}>注文番号</span>
+              <span className={styles.val}>{orderNumber}</span>
+            </p>
+          )}
+          {orderId && (
+            <p className={styles.row}>
+              <span className={styles.key}>注文ID</span>
+              <span className={styles.val}>{orderId}</span>
+            </p>
+          )}
+        </div>
+      )}
 
-      <div style={{ marginTop: '20px' }}>
-        <Link href="/" className="next-button">トップに戻る</Link>
+      <div className={styles.actions}>
+        <Link href="/mypage/orders" className={styles.primary}>
+          注文履歴を開く
+        </Link>
+        <Link href="/" className={styles.secondary}>
+          トップへ戻る
+        </Link>
       </div>
-    </div>
+    </main>
   );
 }
