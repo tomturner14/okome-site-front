@@ -1,45 +1,53 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { api } from "@/lib/api";
-import { MeResponseSchema, type MeResponse } from "@/types/api";
+import { MeResponseSchema } from "@/types/api";
 
-type Props = { children: ReactNode };
+type Props = {
+  children: React.ReactNode;
+  /** 未ログイン時に遷移するURL。未指定なら /login?next=<現在のパス> */
+  redirectTo?: string;
+};
 
-export default function RequireLogin({ children }: Props) {
-  const router = useRouter();
+export default function RequireLogin({ children, redirectTo }: Props) {
+  const [allowed, setAllowed] = useState<boolean | null>(null);
   const pathname = usePathname();
-  const [me, setMe] = useState<MeResponse | null>(null);
-  const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
     (async () => {
       try {
-        const raw = await api<unknown>("/me", { method: "GET" });
-        const parsed = MeResponseSchema.parse(raw);
+        const raw = await api<unknown>("/me");
+        const me = MeResponseSchema.parse(raw);
+
         if (!active) return;
 
-        if (parsed.loggedIn) {
-          setMe(parsed);
+        if (me.loggedIn) {
+          setAllowed(true);
         } else {
-          // 未ログイン → /login?next=/current
-          const next = encodeURIComponent(pathname || "/");
-          router.replace(`/login?next=${next}`);
+          const next = redirectTo ?? `/login?next=${encodeURIComponent(pathname)}`;
+          location.href = next;
         }
-      } catch (e: any) {
+      } catch {
         if (!active) return;
-        setErr(e?.message ?? "認証状態の確認に失敗しました");
+        const next = redirectTo ?? `/login?next=${encodeURIComponent(pathname)}`;
+        location.href = next;
       }
     })();
-    return () => {
-      active = false;
-    };
-  }, [pathname, router]);
+    return () => { active = false; };
+  }, [pathname, redirectTo]);
 
-  if (err) return <p>読み込みエラー: {err}</p>;
-  if (!me) return <p>確認中...</p>;
+  // 判定中のプレースホルダ
+  if (allowed === null) {
+    return (
+      <main style={{ padding: 16 }}>
+        <p>ログイン確認中...</p>
+      </main>
+    );
+  }
 
+  // 許可されたら子要素を表示
   return <>{children}</>;
 }
