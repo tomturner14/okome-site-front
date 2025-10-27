@@ -4,19 +4,24 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import styles from "./SessionBadge.module.scss";
-
-type MeResp = { loggedIn: boolean; sessionPing?: number };
+import { MeResponseSchema, type MeResponse } from "@/types/api";
 
 export default function SessionBadge() {
-  const [me, setMe] = useState<MeResp | null>(null);
+  const [me, setMe] = useState<MeResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     let active = true;
-    api<MeResp>("/me")
-      .then((d) => active && setMe(d))
-      .catch((e: any) => active && setError(e?.message ?? "network error"));
+    (async () => {
+      try {
+        const raw = await api<unknown>("/me");
+        const parsed = MeResponseSchema.parse(raw);
+        if (active) setMe(parsed);
+      } catch (e: any) {
+        if (active) setError(e?.message ?? "network error");
+      }
+    })();
     return () => {
       active = false;
     };
@@ -26,6 +31,7 @@ export default function SessionBadge() {
     try {
       setBusy(true);
       await api("/auth/logout", { method: "POST" });
+    } catch {
     } finally {
       location.reload();
     }
@@ -60,5 +66,5 @@ export default function SessionBadge() {
         </>
       )}
     </span>
-  )
-};
+  );
+}
