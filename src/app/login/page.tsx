@@ -7,11 +7,11 @@ import { api } from "@/lib/api";
 import { AuthOkSchema } from "@/types/api";
 import styles from "./LoginPage.module.scss";
 
-// 入力バリデーション（最小）
 const LoginInputSchema = z.object({
   email: z.string().email("メール形式が正しくありません"),
   password: z.string().min(6, "パスワードは6文字以上"),
 });
+
 type LoginInput = z.infer<typeof LoginInputSchema>;
 
 export default function LoginPage() {
@@ -39,12 +39,14 @@ export default function LoginPage() {
       const raw = await api<unknown>("/auth/login", {
         method: "POST",
         body: parsed.data,
-        parseErrorJson: true,
+        parseErrorJson: true, // ← これで {error, code} を拾える
       });
       AuthOkSchema.parse(raw);
       location.href = "/";
     } catch (e: any) {
-      setErr(e?.data?.error ?? e?.message ?? "ログインに失敗しました");
+      // api.ts が throw する { status, data } を想定
+      const apiMsg = e?.data?.error ?? e?.message ?? "ログインに失敗しました";
+      setErr(apiMsg);
     } finally {
       setBusy(false);
     }
@@ -94,9 +96,7 @@ export default function LoginPage() {
           から登録できます
         </p>
 
-        <Link href="/" className={styles.secondary}>
-          トップへ戻る
-        </Link>
+        <Link href="/" className={styles.secondary}>トップへ戻る</Link>
       </form>
     </main>
   );
