@@ -91,7 +91,7 @@ export default function OrderDetailPage() {
                 <p className={styles.muted}>品目がありません。</p>
               ) : (
                 <ul className={styles.lines}>
-                  {data.items.map((it, idx) => (
+                  {data.items.map((it, idx: number) => (
                     <li key={idx} className={styles.line}>
                       <div className={styles.thumb} aria-hidden>
                         {it.image_url ? <img src={it.image_url} alt="" /> : <div className={styles.noimg} />}
