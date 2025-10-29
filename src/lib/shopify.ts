@@ -1,33 +1,28 @@
 // src/lib/shopify.ts
-import { api } from "@/lib/api";
+import { api } from "./api";
 
-export type CheckoutLine = { variantId: string; quantity: number };
+// 一覧
+export async function getProducts(): Promise<any[]> {
+  return await api<any[]>("/products", { method: "GET", cache: "no-store" });
+}
 
-export type CreateCheckoutOptions = {
-  email?: string;
-  note?: string;
-  // 事前に住所を埋めたい場合（必要に応じて拡張）
-  shippingAddress?: {
-    firstName?: string;
-    lastName?: string;
-    address1?: string;
-    address2?: string;
-    city?: string;
-    province?: string;
-    country?: string;
-    zip?: string;
-    phone?: string;
-  };
-};
-
-export async function createCheckout(
-  lines: CheckoutLine[],
-  opts: CreateCheckoutOptions = {}
-): Promise<string> {
-  const res = await api<{ url: string }>("/shopify/checkout", {
-    method: "POST",
-    body: { lines, ...opts },
-    parseErrorJson: true,
+// 単品（handle 指定）
+export async function getProduct(handle: string): Promise<any> {
+  return await api<any>(`/products/${encodeURIComponent(handle)}`, {
+    method: "GET",
+    cache: "no-store",
   });
-  return res.url;
+}
+
+/* --- 既存のCartContextが参照するスタブは維持（後で本実装に差し替え） --- */
+export async function getCart(_id: string) { return null; }
+export async function createCart() { return { id: "dummy", lineItems: [] }; }
+export async function addToCart(_cartId: string, _variantId: string, _qty: number) {
+  return { id: "dummy", lineItems: [] };
+}
+export async function removeFromCart(_lineItemId: string) {
+  return { id: "dummy", lineItems: [] };
+}
+export async function updateCartItem(_lineItemId: string, _qty: number) {
+  return { id: "dummy", lineItems: [] };
 }

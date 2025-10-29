@@ -1,4 +1,6 @@
-// next.config.ts の rewrites で 4000 にプロキシされる
+// next.config.ts の rewrites で http://localhost:4000 にプロキシされる前提
+// Server Component からは絶対 URLが必要なため、ここで生成する
+
 const BASE = "/api";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -6,19 +8,32 @@ type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 type FetchOptions = {
   method?: HttpMethod;
   headers?: Record<string, string>;
-  // JSON を送る場合の body（オブジェクトでも string でもOK）
   body?: any;
-  // 200 以外も JSON を読むかどうか（デバッグ用）
-  parseErrorJson?: boolean;
-  // ← 追加: Next.js の fetch cache オプションを通せるようにする
+  parseErrorJson?: boolean; // エラー時に JSON 解析を試す
   cache?: RequestCache;
 };
+
+function resolveOrigin(): string {
+  if (typeof window !== "undefined") {
+    return window.location.origin; // ブラウザ
+  }
+  // サーバー側（dev 既定）。本番は環境変数で上書き可能
+  return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+}
+
+function makeUrl(path: string): string {
+  if (/^https?:\/\//i.test(path)) return path;
+  const basePath = path.startsWith("/") ? `${BASE}${path}` : `${BASE}/${path}`;
+  const origin = resolveOrigin();
+  // サーバーでは絶対 URL、クライアントでは相対でも可（統一で OK）
+  return typeof window === "undefined" ? origin + basePath : basePath;
+}
 
 export async function api<T = unknown>(
   path: string,
   opts: FetchOptions = {}
 ): Promise<T> {
-  const url = path.startsWith("/") ? `${BASE}${path}` : `${BASE}/${path}`;
+  const url = makeUrl(path);
 
   const headers: Record<string, string> = {
     Accept: "application/json",
@@ -40,27 +55,29 @@ export async function api<T = unknown>(
     headers,
     body,
     credentials: "include",
-    // 既定は no-store（明示上書きOK）
     cache: opts.cache ?? "no-store",
   });
 
   if (!res.ok) {
+    // ← ここを“一度きり読み”に変更
+    const raw = await res.text();
+    let data: unknown = undefined;
+
     if (opts.parseErrorJson) {
       try {
-        const data = await res.json();
-        throw Object.assign(new Error("API error"), {
-          status: res.status,
-          data,
-        });
+        data = JSON.parse(raw);
       } catch {
-        /* fallthrough */
+        // JSON じゃなければそのままテキストを返す
+        data = raw;
       }
     }
+
     throw Object.assign(new Error(`HTTP ${res.status}`), {
       status: res.status,
-      text: await res.text(),
+      data: data ?? raw,
     });
   }
 
+  // 正常時は JSON を一度だけ読む
   return (await res.json()) as T;
 }

@@ -1,52 +1,38 @@
-"use client";
-
+// frontend/src/app/done/page.tsx
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import styles from "./DonePage.module.scss";
 
-export default function DonePage() {
-  const sp = useSearchParams();
-  const id = sp.get("id");
-  const orderNumber = sp.get("order_number");
-  const status = sp.get("status"); // 例: "paid" / "pending" / "cancelled" などが来る場合あり
+type SP = { [key: string]: string | string[] | undefined };
+const pick = (sp: SP, k: string) => {
+  const v = sp[k];
+  return Array.isArray(v) ? v[0] : v;
+};
+
+export default function DonePage({ searchParams }: { searchParams: SP }) {
+  const orderId = pick(searchParams, "orderId");
+  const status = pick(searchParams, "status"); // 任意（ok / failed など想定）
 
   return (
-    <main className={styles.page}>
-      <h1 className={styles.title}>ご注文ありがとうございます！</h1>
-      <p className={styles.lead}>注文が完了しました。確認メールをお送りしています。</p>
+    <main style={{ maxWidth: 720, margin: "40px auto", padding: "0 16px" }}>
+      <h1>ご注文ありがとうございます</h1>
+      <p>ご注文手続きが完了しました。確認メールをお送りしています。</p>
 
-      <section className={styles.info}>
-        {orderNumber && (
-          <p className={styles.row}>
-            <span className={styles.key}>注文番号</span>
-            <span className={styles.val}>{orderNumber}</span>
-          </p>
-        )}
-        {id && (
-          <p className={styles.row}>
-            <span className={styles.key}>内部ID</span>
-            <span className={styles.val}>#{id}</span>
-          </p>
-        )}
-        {status && (
-          <p className={styles.row}>
-            <span className={styles.key}>ステータス</span>
-            <span className={styles.val}>{status}</span>
-          </p>
-        )}
-      </section>
+      {status && <p>ステータス: <strong>{status}</strong></p>}
 
-      <div className={styles.actions}>
-        {id ? (
-          <Link className={styles.primary} href={`/mypage/orders/${encodeURIComponent(id)}`}>
-            注文詳細を見る
-          </Link>
+      <div style={{ marginTop: 24 }}>
+        {orderId ? (
+          <p>
+            この注文の詳細へ：{" "}
+            <Link href={`/mypage/orders/${orderId}`}>注文 #{orderId}</Link>
+          </p>
         ) : (
-          <Link className={styles.primary} href="/mypage/orders">
-            注文履歴へ
-          </Link>
+          <p>※ 注文IDが見つかりませんでした。</p>
         )}
-        <Link className={styles.secondary} href="/">トップへ戻る</Link>
+        <p style={{ marginTop: 8 }}>
+          <Link href="/mypage/orders">注文履歴をみる</Link>
+        </p>
+        <p style={{ marginTop: 8 }}>
+          <Link href="/">トップへ戻る</Link>
+        </p>
       </div>
     </main>
   );
