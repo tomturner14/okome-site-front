@@ -1,5 +1,7 @@
+// src/app/mypage/page.tsx
 "use client";
 
+import Link from "next/link"; // ← 追加
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
@@ -34,10 +36,8 @@ export default function MyPage() {
         if (!active) return;
         setMe(meParsed);
 
-        // 2) 注文履歴取得
-        const raw = await api<unknown>(`/users/${meParsed.user.id}/orders`, {
-          parseErrorJson: true,
-        });
+        // 2) 注文履歴（プレビュー用に取得）
+        const raw = await api<unknown>("/orders", { parseErrorJson: true });
         const list = OrdersResponseSchema.parse(raw);
         if (!active) return;
         setOrders(list);
@@ -61,22 +61,39 @@ export default function MyPage() {
     <main className={styles.page}>
       <h1 className={styles.title}>マイページ</h1>
 
+      {/* アカウント */}
       <section className={styles.section}>
         <h2 className={styles.h2}>アカウント</h2>
         <div className={styles.card}>
-          <p className={styles.row}><span className={styles.key}>お名前</span><span className={styles.val}>{me.user.name}</span></p>
-          <p className={styles.row}><span className={styles.key}>メール</span><span className={styles.val}>{me.user.email}</span></p>
+          <p className={styles.row}>
+            <span className={styles.key}>お名前</span>
+            <span className={styles.val}>{me.user.name}</span>
+          </p>
+          <p className={styles.row}>
+            <span className={styles.key}>メール</span>
+            <span className={styles.val}>{me.user.email}</span>
+          </p>
         </div>
+
+        {/* 住所編集への導線（常時表示） */}
+        <p style={{ marginTop: 12 }}>
+          <Link href="/mypage/addresses">配送先住所を管理する</Link>
+        </p>
       </section>
 
+      {/* 注文履歴（プレビュー） */}
       <section className={styles.section}>
         <h2 className={styles.h2}>注文履歴</h2>
+        {/* 一覧ページへの導線を常時表示 */}
+        <p style={{ margin: "6px 0 12px" }}>
+          <Link href="/mypage/orders">注文履歴一覧へ</Link>
+        </p>
 
         {orders.length === 0 ? (
           <p className={styles.muted}>注文履歴はまだありません。</p>
         ) : (
           <ul className={styles.orderList}>
-            {orders.map((o) => (
+            {orders.slice(0, 3).map((o) => ( // 直近3件だけプレビュー
               <li key={o.id} className={styles.orderItem}>
                 <div className={styles.orderHead}>
                   <span className={styles.orderId}># {o.id}</span>

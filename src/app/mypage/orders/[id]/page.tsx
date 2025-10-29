@@ -79,7 +79,10 @@ export default function OrderDetailPage() {
                 <div className={styles.box}>
                   <p className={styles.addrName}>{data.address.recipient_name}</p>
                   <p>〒{formatPostal7(data.address.postal_code)}</p>
-                  <p>{data.address.address_1}{data.address.address_2 ? ` ${data.address.address_2}` : ""}</p>
+                  <p>
+                    {data.address.address_1}
+                    {data.address.address_2 ? ` ${data.address.address_2}` : ""}
+                  </p>
                   <p>{data.address.phone}</p>
                 </div>
               </section>
