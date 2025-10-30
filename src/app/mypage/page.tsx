@@ -25,38 +25,58 @@ export default function MyPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(true);
+  const [claimMsg, setClaimMsg] = useState<string | null>(null);
+  const [claimBusy, setClaimBusy] = useState(false);
+
+  async function fetchAll(activeRef: { v: boolean }) {
+    // 1) セッション確認
+    const meRaw = await api<unknown>("/me", { parseErrorJson: true });
+    const meParsed = MeResponseSchema.parse(meRaw);
+    if (!meParsed.loggedIn || !meParsed.user) {
+      router.replace(`/login?next=/mypage`);
+      return;
+    }
+    if (!activeRef.v) return;
+    setMe(meParsed);
+
+    // 2) 注文履歴（プレビュー）
+    const raw = await api<unknown>("/orders", { parseErrorJson: true });
+    const list = OrdersResponseSchema.parse(raw);
+    if (!activeRef.v) return;
+    setOrders(list);
+  }
 
   useEffect(() => {
-    let active = true;
-
+    let active = { v: true };
     (async () => {
       try {
-        // 1) セッション確認
-        const meRaw = await api<unknown>("/me", { parseErrorJson: true });
-        const meParsed = MeResponseSchema.parse(meRaw);
-        if (!meParsed.loggedIn || !meParsed.user) {
-          router.replace(`/login?next=/mypage`);
-          return;
-        }
-        if (!active) return;
-        setMe(meParsed);
-
-        // 2) 注文履歴（プレビュー用に取得）
-        const raw = await api<unknown>("/orders", { parseErrorJson: true });
-        const list = OrdersResponseSchema.parse(raw);
-        if (!active) return;
-        setOrders(list);
+        await fetchAll(active);
       } catch (e: any) {
         setErr(getErrMessage(e, "読み込みに失敗しました"));
       } finally {
-        if (active) setBusy(false);
+        if (active.v) setBusy(false);
       }
     })();
-
-    return () => {
-      active = false;
-    };
+    return () => { active.v = false; };
   }, [router]);
+
+  async function onClaim() {
+    setClaimMsg(null);
+    setClaimBusy(true);
+    try {
+      const resp = await api<{ ok: boolean; claimed: number }>("/orders/claim", {
+        method: "POST",
+        parseErrorJson: true,
+      });
+      setClaimMsg(resp.ok ? `未ひも付け注文を ${resp.claimed} 件、あなたのアカウントに紐付けました。` : "引き取りに失敗しました。");
+      // リスト再取得
+      await fetchAll({ v: true });
+    } catch (e: any) {
+      setClaimMsg(getErrMessage(e, "引き取りに失敗しました。"));
+    } finally {
+      setClaimBusy(false);
+    }
+  }
 
   if (busy) return <main className={styles.page}>読み込み中...</main>;
   if (err) return <main className={styles.page}><p className={styles.error}>{err}</p></main>;
@@ -80,16 +100,28 @@ export default function MyPage() {
           </p>
         </div>
 
-        {/* 住所編集への導線（常時表示） */}
         <p style={{ marginTop: 12 }}>
           <Link href="/mypage/addresses">配送先住所を管理する</Link>
         </p>
+
+        {/* 未ひも付け注文の引き取り */}
+        <div style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center" }}>
+          <button
+            type="button"
+            className={styles.secondary}
+            onClick={onClaim}
+            disabled={claimBusy}
+            title="メール一致の未ひも付け注文を、あなたのアカウントに紐付けます"
+          >
+            {claimBusy ? "引き取り中…" : "未ひも付け注文を引き取る"}
+          </button>
+          {claimMsg && <span className={styles.muted}>{claimMsg}</span>}
+        </div>
       </section>
 
       {/* 注文履歴（プレビュー） */}
       <section className={styles.section}>
         <h2 className={styles.h2}>注文履歴</h2>
-        {/* 一覧ページへの導線を常時表示 */}
         <p style={{ margin: "6px 0 12px" }}>
           <Link href="/mypage/orders">注文履歴一覧へ</Link>
         </p>
@@ -102,9 +134,7 @@ export default function MyPage() {
               <li key={o.id} className={styles.orderItem}>
                 <div className={styles.orderHead}>
                   <span className={styles.orderId}># {o.id}</span>
-                  <span className={styles.orderDate}>
-                    {formatDateTime(o.ordered_at)}
-                  </span>
+                  <span className={styles.orderDate}>{formatDateTime(o.ordered_at)}</span>
                 </div>
 
                 <div className={styles.orderMeta}>
@@ -122,9 +152,7 @@ export default function MyPage() {
                         </div>
                         <div className={styles.itemBody}>
                           <p className={styles.itemTitle}>{it.title}</p>
-                          <p className={styles.itemSub}>
-                            {it.quantity} 点 × {formatPrice(it.price)}
-                          </p>
+                          <p className={styles.itemSub}>{it.quantity} 点 × {formatPrice(it.price)}</p>
                         </div>
                       </li>
                     ))}
