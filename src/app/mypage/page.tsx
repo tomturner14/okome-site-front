@@ -1,7 +1,6 @@
-// src/app/mypage/page.tsx
 "use client";
 
-import Link from "next/link"; // ← 追加
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
@@ -13,6 +12,12 @@ import {
 } from "@/types/api";
 import { formatDateTime, formatPrice } from "@/lib/format";
 import styles from "./MyPage.module.scss";
+
+function getErrMessage(e: any, fallback: string) {
+  if (e?.status === 401) return "ログインが必要です。";
+  if (e?.status === 403) return "権限がありません。";
+  return e?.data?.message ?? e?.message ?? fallback;
+}
 
 export default function MyPage() {
   const router = useRouter();
@@ -42,7 +47,7 @@ export default function MyPage() {
         if (!active) return;
         setOrders(list);
       } catch (e: any) {
-        setErr(e?.data?.error ?? e?.message ?? "読み込みに失敗しました");
+        setErr(getErrMessage(e, "読み込みに失敗しました"));
       } finally {
         if (active) setBusy(false);
       }
@@ -93,7 +98,7 @@ export default function MyPage() {
           <p className={styles.muted}>注文履歴はまだありません。</p>
         ) : (
           <ul className={styles.orderList}>
-            {orders.slice(0, 3).map((o) => ( // 直近3件だけプレビュー
+            {orders.slice(0, 3).map((o) => (
               <li key={o.id} className={styles.orderItem}>
                 <div className={styles.orderHead}>
                   <span className={styles.orderId}># {o.id}</span>

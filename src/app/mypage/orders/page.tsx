@@ -8,6 +8,23 @@ import { OrdersResponseSchema, type Order } from "@/types/api";
 import { formatDateTime, formatPrice } from "@/lib/format";
 import styles from "./OrdersPage.module.scss";
 
+const JP_STATUS: Record<Order["status"], string> = {
+  pending: "未決済",
+  paid: "支払い済み",
+  cancelled: "取消",
+};
+
+const JP_FF: Record<Order["fulfill_status"], string> = {
+  unfulfilled: "未発送",
+  fulfilled: "発送済み",
+};
+
+function getErrMessage(e: any, fallback: string) {
+  if (e?.status === 401) return "ログインが必要です。";
+  if (e?.status === 403) return "権限がありません。";
+  return e?.data?.message ?? e?.message ?? fallback;
+}
+
 export default function OrdersPage() {
   const [items, setItems] = useState<Order[]>([]);
   const [err, setErr] = useState<string | null>(null);
@@ -22,9 +39,9 @@ export default function OrdersPage() {
         const list = OrdersResponseSchema.parse(raw);
         if (active) setItems(list);
       } catch (e: any) {
-        setErr(e?.data?.error ?? e?.message ?? "注文履歴の取得に失敗しました");
+        if (active) setErr(getErrMessage(e, "注文履歴の取得に失敗しました"));
       } finally {
-        setBusy(false);
+        if (active) setBusy(false);
       }
     })();
     return () => { active = false; };
@@ -75,7 +92,7 @@ export default function OrdersPage() {
 
                 <div className={styles.footer}>
                   <span className={styles.status}>
-                    支払: {o.status} / 発送: {o.fulfill_status}
+                    支払: {JP_STATUS[o.status]} / 発送: {JP_FF[o.fulfill_status]}
                   </span>
                   <span className={styles.total}>合計 {formatPrice(o.total_price)}</span>
                 </div>

@@ -9,6 +9,13 @@ import { OrderDetailSchema, type OrderDetail } from "@/types/api";
 import { formatDateTime, formatPrice, formatPostal7 } from "@/lib/format";
 import styles from "./OrderDetailPage.module.scss";
 
+function getErrMessage(e: any, fallback: string) {
+  if (e?.status === 401) return "ログインが必要です。";
+  if (e?.status === 403) return "権限がありません。";
+  if (e?.status === 404) return "注文が見つかりません。";
+  return e?.data?.message ?? e?.message ?? fallback;
+}
+
 export default function OrderDetailPage() {
   const params = useParams<{ id: string }>();
   const [data, setData] = useState<OrderDetail | null>(null);
@@ -34,7 +41,7 @@ export default function OrderDetailPage() {
         const parsed = OrderDetailSchema.parse(raw);
         if (active) setData(parsed);
       } catch (e: any) {
-        const msg = e?.data?.error ?? e?.message ?? "注文情報の取得に失敗しました";
+        const msg = getErrMessage(e, "注文情報の取得に失敗しました");
         if (active) setErr(msg);
       } finally {
         if (active) setBusy(false);
@@ -73,9 +80,11 @@ export default function OrderDetailPage() {
               </div>
             </header>
 
-            {data.address && (
-              <section className={styles.section}>
-                <h2 className={styles.h2}>配送先</h2>
+            <section className={styles.section}>
+              <h2 className={styles.h2}>配送先</h2>
+              {!data.address ? (
+                <p className={styles.muted}>配送先情報がありません（店頭受取など）。</p>
+              ) : (
                 <div className={styles.box}>
                   <p className={styles.addrName}>{data.address.recipient_name}</p>
                   <p>〒{formatPostal7(data.address.postal_code)}</p>
@@ -85,8 +94,8 @@ export default function OrderDetailPage() {
                   </p>
                   <p>{data.address.phone}</p>
                 </div>
-              </section>
-            )}
+              )}
+            </section>
 
             <section className={styles.section}>
               <h2 className={styles.h2}>注文明細</h2>
