@@ -11,13 +11,8 @@ import {
   type Order,
 } from "@/types/api";
 import { formatDateTime, formatPrice } from "@/lib/format";
+import { toUserMessage } from "@/lib/errorMessage";
 import styles from "./MyPage.module.scss";
-
-function getErrMessage(e: any, fallback: string) {
-  if (e?.status === 401) return "ログインが必要です。";
-  if (e?.status === 403) return "権限がありません。";
-  return e?.data?.message ?? e?.message ?? fallback;
-}
 
 export default function MyPage() {
   const router = useRouter();
@@ -29,7 +24,6 @@ export default function MyPage() {
   const [claimBusy, setClaimBusy] = useState(false);
 
   async function fetchAll(activeRef: { v: boolean }) {
-    // 1) セッション確認
     const meRaw = await api<unknown>("/me", { parseErrorJson: true });
     const meParsed = MeResponseSchema.parse(meRaw);
     if (!meParsed.loggedIn || !meParsed.user) {
@@ -39,7 +33,6 @@ export default function MyPage() {
     if (!activeRef.v) return;
     setMe(meParsed);
 
-    // 2) 注文履歴（プレビュー）
     const raw = await api<unknown>("/orders", { parseErrorJson: true });
     const list = OrdersResponseSchema.parse(raw);
     if (!activeRef.v) return;
@@ -52,7 +45,7 @@ export default function MyPage() {
       try {
         await fetchAll(active);
       } catch (e: any) {
-        setErr(getErrMessage(e, "読み込みに失敗しました"));
+        setErr(toUserMessage(e, "読み込みに失敗しました。"));
       } finally {
         if (active.v) setBusy(false);
       }
@@ -69,10 +62,9 @@ export default function MyPage() {
         parseErrorJson: true,
       });
       setClaimMsg(resp.ok ? `未ひも付け注文を ${resp.claimed} 件、あなたのアカウントに紐付けました。` : "引き取りに失敗しました。");
-      // リスト再取得
       await fetchAll({ v: true });
     } catch (e: any) {
-      setClaimMsg(getErrMessage(e, "引き取りに失敗しました。"));
+      setClaimMsg(toUserMessage(e, "引き取りに失敗しました。"));
     } finally {
       setClaimBusy(false);
     }

@@ -7,14 +7,8 @@ import { api } from "@/lib/api";
 import RequireLogin from "@/components/RequireLogin/RequireLogin";
 import { OrderDetailSchema, type OrderDetail } from "@/types/api";
 import { formatDateTime, formatPrice, formatPostal7 } from "@/lib/format";
+import { toUserMessage } from "@/lib/errorMessage";
 import styles from "./OrderDetailPage.module.scss";
-
-function getErrMessage(e: any, fallback: string) {
-  if (e?.status === 401) return "ログインが必要です。";
-  if (e?.status === 403) return "権限がありません。";
-  if (e?.status === 404) return "注文が見つかりません。";
-  return e?.data?.message ?? e?.message ?? fallback;
-}
 
 export default function OrderDetailPage() {
   const params = useParams<{ id: string }>();
@@ -29,7 +23,7 @@ export default function OrderDetailPage() {
 
     (async () => {
       if (!Number.isFinite(id)) {
-        setErr("不正な注文IDです");
+        setErr("不正な注文IDです。");
         setBusy(false);
         return;
       }
@@ -41,7 +35,7 @@ export default function OrderDetailPage() {
         const parsed = OrderDetailSchema.parse(raw);
         if (active) setData(parsed);
       } catch (e: any) {
-        const msg = getErrMessage(e, "注文情報の取得に失敗しました");
+        const msg = toUserMessage(e, "注文情報の取得に失敗しました。");
         if (active) setErr(msg);
       } finally {
         if (active) setBusy(false);

@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import RequireLogin from "@/components/RequireLogin/RequireLogin";
 import { OrdersResponseSchema, type Order } from "@/types/api";
 import { formatDateTime, formatPrice } from "@/lib/format";
+import { toUserMessage } from "@/lib/errorMessage";
 import styles from "./OrdersPage.module.scss";
 
 const JP_STATUS: Record<Order["status"], string> = {
@@ -18,12 +19,6 @@ const JP_FF: Record<Order["fulfill_status"], string> = {
   unfulfilled: "未発送",
   fulfilled: "発送済み",
 };
-
-function getErrMessage(e: any, fallback: string) {
-  if (e?.status === 401) return "ログインが必要です。";
-  if (e?.status === 403) return "権限がありません。";
-  return e?.data?.message ?? e?.message ?? fallback;
-}
 
 export default function OrdersPage() {
   const [items, setItems] = useState<Order[]>([]);
@@ -39,7 +34,7 @@ export default function OrdersPage() {
         const list = OrdersResponseSchema.parse(raw);
         if (active) setItems(list);
       } catch (e: any) {
-        if (active) setErr(getErrMessage(e, "注文履歴の取得に失敗しました"));
+        if (active) setErr(toUserMessage(e, "注文履歴の取得に失敗しました。"));
       } finally {
         if (active) setBusy(false);
       }
