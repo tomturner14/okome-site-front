@@ -29,6 +29,15 @@ function makeUrl(path: string): string {
   return typeof window === "undefined" ? origin + basePath : basePath;
 }
 
+function extractErrorMessage(data: unknown, fallback: string): string {
+  if (data && typeof data === "object") {
+    const anyObj = data as { error?: unknown };
+    if (typeof anyObj.error === "string" && anyObj.error.trim()) return anyObj.error;
+  }
+  if (typeof data === "string" && data.trim()) return data;
+  return fallback;
+}
+
 export async function api<T = unknown>(
   path: string,
   opts: FetchOptions = {}
@@ -59,7 +68,6 @@ export async function api<T = unknown>(
   });
 
   if (!res.ok) {
-    // ← ここを“一度きり読み”に変更
     const raw = await res.text();
     let data: unknown = undefined;
 
@@ -72,9 +80,12 @@ export async function api<T = unknown>(
       }
     }
 
-    throw Object.assign(new Error(`HTTP ${res.status}`), {
+    const fallback = `HTTP ${res.status}`;
+    const msg = extractErrorMessage(data, fallback);
+
+    throw Object.assign(new Error(msg), {
       status: res.status,
-      data: data ?? raw,
+      data,
     });
   }
 

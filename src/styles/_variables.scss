@@ -1,5 +1,6 @@
 // src/styles/_variables.scss
 @use './tokens' as t;
+@forward "tokens";
 
 // --- Brand / Theme palette（あなたの現行値をそのまま維持） ---
 $primary-color: #319304;
