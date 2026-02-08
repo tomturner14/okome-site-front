@@ -30,9 +30,13 @@ function makeUrl(path: string): string {
 }
 
 function extractErrorMessage(data: unknown, fallback: string): string {
+  // BEが { message: "..." } を返すパターンにも対応
   if (data && typeof data === "object") {
-    const anyObj = data as { error?: unknown };
-    if (typeof anyObj.error === "string" && anyObj.error.trim()) return anyObj.error;
+    const o = data as Record<string, unknown>;
+    const candidates = [o.error, o.message, o.msg];
+    for (const c of candidates) {
+      if (typeof c === "string" && c.trim()) return c;
+    }
   }
   if (typeof data === "string" && data.trim()) return data;
   return fallback;
@@ -69,13 +73,14 @@ export async function api<T = unknown>(
 
   if (!res.ok) {
     const raw = await res.text();
-    let data: unknown = undefined;
+
+    // parseErrorJson が false でも raw を data に入れておく（UIで意味のある表示にしやすい）
+    let data: unknown = raw;
 
     if (opts.parseErrorJson) {
       try {
         data = JSON.parse(raw);
       } catch {
-        // JSON じゃなければそのままテキストを返す
         data = raw;
       }
     }
@@ -89,6 +94,5 @@ export async function api<T = unknown>(
     });
   }
 
-  // 正常時は JSON を一度だけ読む
   return (await res.json()) as T;
 }
