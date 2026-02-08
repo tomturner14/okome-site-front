@@ -1,7 +1,7 @@
-@use '@/styles/variables' as v;
+@use "styles/variables" as v;
 
 .page {
-  padding: 24px 16px;
+  padding: v.$space-6 v.$space-4;
 }
 
 .title {
@@ -20,7 +20,7 @@
 
 .card {
   border: 1px solid v.$border-color;
-  border-radius: 6px;
+  border-radius: v.$radius-6;
   padding: 12px;
   background: #fff;
 }
@@ -59,7 +59,7 @@
 
 .orderItem {
   border: 1px solid v.$border-color;
-  border-radius: 6px;
+  border-radius: v.$radius-6;
   background: #fff;
   padding: 12px;
 }

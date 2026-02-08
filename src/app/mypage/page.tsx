@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import {
   MeResponseSchema,
@@ -16,6 +16,9 @@ import styles from "./MyPage.module.scss";
 
 export default function MyPage() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [me, setMe] = useState<MeResponse | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [err, setErr] = useState<string | null>(null);
@@ -23,45 +26,66 @@ export default function MyPage() {
   const [claimMsg, setClaimMsg] = useState<string | null>(null);
   const [claimBusy, setClaimBusy] = useState(false);
 
+  const current = (() => {
+    const qs = searchParams.toString();
+    return qs ? `${pathname}?${qs}` : pathname;
+  })();
+
   async function fetchAll(activeRef: { v: boolean }) {
     const meRaw = await api<unknown>("/me", { parseErrorJson: true });
     const meParsed = MeResponseSchema.parse(meRaw);
+
+    // セッション切れ等にも耐える（ここで/loginへ）
     if (!meParsed.loggedIn || !meParsed.user) {
-      router.replace(`/login?next=/mypage`);
+      router.replace(`/login?next=${encodeURIComponent(current)}`);
       return;
     }
+
     if (!activeRef.v) return;
     setMe(meParsed);
 
     const raw = await api<unknown>("/orders", { parseErrorJson: true });
     const list = OrdersResponseSchema.parse(raw);
+
     if (!activeRef.v) return;
     setOrders(list);
   }
 
   useEffect(() => {
-    let active = { v: true };
+    const active = { v: true };
+
     (async () => {
       try {
         await fetchAll(active);
       } catch (e: any) {
-        setErr(toUserMessage(e, "読み込みに失敗しました。"));
+        if (active.v) setErr(toUserMessage(e, "読み込みに失敗しました。"));
       } finally {
         if (active.v) setBusy(false);
       }
     })();
-    return () => { active.v = false; };
-  }, [router]);
+
+    return () => {
+      active.v = false;
+    };
+  }, [router, current]);
 
   async function onClaim() {
     setClaimMsg(null);
     setClaimBusy(true);
+
     try {
       const resp = await api<{ ok: boolean; claimed: number }>("/orders/claim", {
         method: "POST",
         parseErrorJson: true,
       });
-      setClaimMsg(resp.ok ? `未ひも付け注文を ${resp.claimed} 件、あなたのアカウントに紐付けました。` : "引き取りに失敗しました。");
+
+      setClaimMsg(
+        resp.ok
+          ? `未ひも付け注文を ${resp.claimed} 件、あなたのアカウントに紐付けました。`
+          : "引き取りに失敗しました。"
+      );
+
+      // 画面上で押した操作なのでキャンセル制御は簡略化でOK
       await fetchAll({ v: true });
     } catch (e: any) {
       setClaimMsg(toUserMessage(e, "引き取りに失敗しました。"));
@@ -71,14 +95,18 @@ export default function MyPage() {
   }
 
   if (busy) return <main className={styles.page}>読み込み中...</main>;
-  if (err) return <main className={styles.page}><p className={styles.error}>{err}</p></main>;
+  if (err)
+    return (
+      <main className={styles.page}>
+        <p className={styles.error}>{err}</p>
+      </main>
+    );
   if (!me?.user) return null;
 
   return (
     <main className={styles.page}>
       <h1 className={styles.title}>マイページ</h1>
 
-      {/* アカウント */}
       <section className={styles.section}>
         <h2 className={styles.h2}>アカウント</h2>
         <div className={styles.card}>
@@ -96,8 +124,14 @@ export default function MyPage() {
           <Link href="/mypage/addresses">配送先住所を管理する</Link>
         </p>
 
-        {/* 未ひも付け注文の引き取り */}
-        <div style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center" }}>
+        <div
+          style={{
+            marginTop: 12,
+            display: "flex",
+            gap: 8,
+            alignItems: "center",
+          }}
+        >
           <button
             type="button"
             className={styles.secondary}
@@ -111,7 +145,6 @@ export default function MyPage() {
         </div>
       </section>
 
-      {/* 注文履歴（プレビュー） */}
       <section className={styles.section}>
         <h2 className={styles.h2}>注文履歴</h2>
         <p style={{ margin: "6px 0 12px" }}>
@@ -126,7 +159,9 @@ export default function MyPage() {
               <li key={o.id} className={styles.orderItem}>
                 <div className={styles.orderHead}>
                   <span className={styles.orderId}># {o.id}</span>
-                  <span className={styles.orderDate}>{formatDateTime(o.ordered_at)}</span>
+                  <span className={styles.orderDate}>
+                    {formatDateTime(o.ordered_at)}
+                  </span>
                 </div>
 
                 <div className={styles.orderMeta}>
@@ -140,11 +175,17 @@ export default function MyPage() {
                     {o.items.map((it, idx) => (
                       <li key={idx} className={styles.itemRow}>
                         <div className={styles.itemThumb} aria-hidden>
-                          {it.image_url ? <img src={it.image_url} alt="" /> : <div className={styles.noThumb} />}
+                          {it.image_url ? (
+                            <img src={it.image_url} alt="" />
+                          ) : (
+                            <div className={styles.noThumb} />
+                          )}
                         </div>
                         <div className={styles.itemBody}>
                           <p className={styles.itemTitle}>{it.title}</p>
-                          <p className={styles.itemSub}>{it.quantity} 点 × {formatPrice(it.price)}</p>
+                          <p className={styles.itemSub}>
+                            {it.quantity} 点 × {formatPrice(it.price)}
+                          </p>
                         </div>
                       </li>
                     ))}
