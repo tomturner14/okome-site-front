@@ -42,11 +42,13 @@ export default function OrderDetailPage() {
       }
     })();
 
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [id]);
 
   return (
-    <RequireLogin redirectTo={`/login?next=${encodeURIComponent(`/mypage/orders/${isNaN(id) ? "" : id}`)}`}>
+    <RequireLogin>
       <main className={styles.page}>
         <h1 className={styles.title}>注文詳細</h1>
 
@@ -66,7 +68,9 @@ export default function OrderDetailPage() {
               </div>
               <div className={styles.row}>
                 <span className={styles.key}>ステータス</span>
-                <span className={styles.val}>{data.status} / {data.fulfill_status}</span>
+                <span className={styles.val}>
+                  {data.status} / {data.fulfill_status}
+                </span>
               </div>
               <div className={styles.row}>
                 <span className={styles.key}>合計</span>
@@ -104,7 +108,9 @@ export default function OrderDetailPage() {
                       </div>
                       <div className={styles.lineBody}>
                         <p className={styles.prod}>{it.title}</p>
-                        <p className={styles.meta}>数量 {it.quantity} / 単価 {formatPrice(it.price)}</p>
+                        <p className={styles.meta}>
+                          数量 {it.quantity} / 単価 {formatPrice(it.price)}
+                        </p>
                       </div>
                     </li>
                   ))}
@@ -115,8 +121,12 @@ export default function OrderDetailPage() {
         )}
 
         <p className={styles.actions}>
-          <Link href="/mypage/orders" className={styles.secondary}>注文一覧に戻る</Link>
-          <Link href="/" className={styles.secondary}>トップへ戻る</Link>
+          <Link href="/mypage/orders" className={styles.secondary}>
+            注文一覧に戻る
+          </Link>
+          <Link href="/" className={styles.secondary}>
+            トップへ戻る
+          </Link>
         </p>
       </main>
     </RequireLogin>

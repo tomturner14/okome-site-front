@@ -27,10 +27,14 @@ export default function OrdersPage() {
 
   useEffect(() => {
     let active = true;
+
     (async () => {
       try {
         setBusy(true);
-        const raw = await api<unknown>("/orders", { cache: "no-store", parseErrorJson: true });
+        const raw = await api<unknown>("/orders", {
+          cache: "no-store",
+          parseErrorJson: true,
+        });
         const list = OrdersResponseSchema.parse(raw);
         if (active) setItems(list);
       } catch (e: any) {
@@ -39,72 +43,72 @@ export default function OrdersPage() {
         if (active) setBusy(false);
       }
     })();
-    return () => { active = false; };
+
+    return () => {
+      active = false;
+    };
   }, []);
 
-  if (busy) {
-    return (
-      <RequireLogin redirectTo={`/login?next=${encodeURIComponent("/mypage/orders")}`}>
-        <main className={styles.page}><p>読み込み中…</p></main>
-      </RequireLogin>
-    );
-  }
-
   return (
-    <RequireLogin redirectTo={`/login?next=${encodeURIComponent("/mypage/orders")}`}>
+    <RequireLogin>
       <main className={styles.page}>
         <h1 className={styles.title}>注文履歴</h1>
 
+        {busy && <p>読み込み中…</p>}
         {err && <p className={styles.error}>{err}</p>}
 
-        {items.length === 0 ? (
-          <p className={styles.muted}>まだご注文はありません。</p>
-        ) : (
-          <ul className={styles.list}>
-            {items.map((o) => (
-              <li key={o.id} className={styles.card}>
-                <div className={styles.header}>
-                  <span className={styles.orderId}>
-                    <Link href={`/mypage/orders/${o.id}`} className={styles.link}>
-                      注文ID: {o.id}
-                    </Link>
-                  </span>
-                  <span className={styles.date}>{formatDateTime(o.ordered_at)}</span>
-                </div>
+        {!busy && !err && (
+          <>
+            {items.length === 0 ? (
+              <p className={styles.muted}>まだご注文はありません。</p>
+            ) : (
+              <ul className={styles.list}>
+                {items.map((o) => (
+                  <li key={o.id} className={styles.card}>
+                    <div className={styles.header}>
+                      <span className={styles.orderId}>
+                        <Link href={`/mypage/orders/${o.id}`} className={styles.link}>
+                          注文ID: {o.id}
+                        </Link>
+                      </span>
+                      <span className={styles.date}>{formatDateTime(o.ordered_at)}</span>
+                    </div>
 
-                <ul className={styles.lines}>
-                  {o.items?.map((it, idx) => (
-                    <li key={idx} className={styles.line}>
-                      <div className={styles.thumb} aria-hidden />
-                      <div className={styles.lineMain}>
-                        <p className={styles.prod}>{it.title}</p>
-                        <p className={styles.qty}>数量: {it.quantity}</p>
-                      </div>
-                      <div className={styles.price}>{formatPrice(it.price)}</div>
-                    </li>
-                  ))}
-                </ul>
+                    <ul className={styles.lines}>
+                      {o.items?.map((it, idx) => (
+                        <li key={idx} className={styles.line}>
+                          <div className={styles.thumb} aria-hidden />
+                          <div className={styles.lineMain}>
+                            <p className={styles.prod}>{it.title}</p>
+                            <p className={styles.qty}>数量: {it.quantity}</p>
+                          </div>
+                          <div className={styles.price}>{formatPrice(it.price)}</div>
+                        </li>
+                      ))}
+                    </ul>
 
-                <div className={styles.footer}>
-                  <span className={styles.status}>
-                    支払: {JP_STATUS[o.status]} / 発送: {JP_FF[o.fulfill_status]}
-                  </span>
-                  <span className={styles.total}>合計 {formatPrice(o.total_price)}</span>
-                </div>
+                    <div className={styles.footer}>
+                      <span className={styles.status}>
+                        支払: {JP_STATUS[o.status]} / 発送: {JP_FF[o.fulfill_status]}
+                      </span>
+                      <span className={styles.total}>合計 {formatPrice(o.total_price)}</span>
+                    </div>
 
-                <div className={styles.actions}>
-                  <Link href={`/mypage/orders/${o.id}`} className={styles.secondary}>
-                    詳細を見る
-                  </Link>
-                </div>
-              </li>
-            ))}
-          </ul>
+                    <div className={styles.actions}>
+                      <Link href={`/mypage/orders/${o.id}`} className={styles.secondary}>
+                        詳細を見る
+                      </Link>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <p className={styles.back}>
+              <Link href="/mypage">マイページに戻る</Link>
+            </p>
+          </>
         )}
-
-        <p className={styles.back}>
-          <Link href="/mypage">マイページに戻る</Link>
-        </p>
       </main>
     </RequireLogin>
   );

@@ -1,63 +1,61 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { MeResponseSchema } from "@/types/api";
 
 type Props = {
   children: React.ReactNode;
-  /** 未ログイン時に遷移するURL。未指定なら /login?next=<現在のパス＋クエリ> */
+  /**
+   * 未ログイン時の遷移先を完全指定したい場合のみ使う。
+   * 未指定なら /login?next=<現在URL(クエリ込み)> にする。
+   */
   redirectTo?: string;
 };
 
-function safeNext(next: string | null): string {
-  if (!next) return "/";
-  if (next.startsWith("http://") || next.startsWith("https://") || next.startsWith("//")) return "/";
-  if (!next.startsWith("/")) return "/";
-  return next;
+function buildCurrentUrl(pathname: string, searchParams: URLSearchParams): string {
+  const qs = searchParams.toString();
+  return qs ? `${pathname}?${qs}` : pathname;
 }
 
 export default function RequireLogin({ children, redirectTo }: Props) {
-  const [allowed, setAllowed] = useState<boolean | null>(null);
-
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [allowed, setAllowed] = useState<boolean | null>(null);
+
+  const current = useMemo(() => buildCurrentUrl(pathname, searchParams), [pathname, searchParams]);
+  const nextUrl = useMemo(() => {
+    return redirectTo ?? `/login?next=${encodeURIComponent(current)}`;
+  }, [redirectTo, current]);
 
   useEffect(() => {
     let active = true;
 
-    const current = (() => {
-      const qs = searchParams.toString();
-      return qs ? `${pathname}?${qs}` : pathname;
-    })();
-
     (async () => {
       try {
-        const raw = await api<unknown>("/me");
+        const raw = await api<unknown>("/me", { cache: "no-store", parseErrorJson: true });
         const me = MeResponseSchema.parse(raw);
 
         if (!active) return;
 
         if (me.loggedIn) {
           setAllowed(true);
-          return;
+        } else {
+          router.replace(nextUrl);
         }
-
-        const nextUrl = redirectTo ?? `/login?next=${encodeURIComponent(current)}`;
-        router.replace(safeNext(nextUrl));
       } catch {
         if (!active) return;
-        const nextUrl = redirectTo ?? `/login?next=${encodeURIComponent(current)}`;
-        router.replace(safeNext(nextUrl));
+        router.replace(nextUrl);
       }
     })();
 
-    return () => { active = false; };
-  }, [pathname, searchParams, redirectTo, router]);
+    return () => {
+      active = false;
+    };
+  }, [router, nextUrl]);
 
-  // 判定中のプレースホルダ
   if (allowed === null) {
     return (
       <main style={{ padding: 16 }}>
@@ -66,6 +64,5 @@ export default function RequireLogin({ children, redirectTo }: Props) {
     );
   }
 
-  // 許可されたら子要素を表示
   return <>{children}</>;
 }
