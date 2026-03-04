@@ -1,7 +1,5 @@
 "use client";
 
-import { Suspense } from "react";
-
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useMemo, useState } from "react";
@@ -33,15 +31,7 @@ type CheckoutLine = {
   quantity: number;
 };
 
-export default function CheckoutPage(props: any) {
-  return (
-    <Suspense fallback={null}>
-      <CheckoutPageInner {...props} />
-    </Suspense>
-  );
-}
-
-function CheckoutPageInner() {
+export default function CheckoutPage() {
   const router = useRouter();
   const search = useSearchParams();
 

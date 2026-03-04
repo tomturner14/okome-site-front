@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic';
-
 // frontend/src/app/done/page.tsx
 import Link from "next/link";
 
@@ -9,8 +7,7 @@ const pick = (sp: SP, k: string) => {
   return Array.isArray(v) ? v[0] : v;
 };
 
-export default async function DonePage({ searchParams: searchParamsP }: { searchParams: Promise<SP> }) {
-  const searchParams = await searchParamsP;
+export default function DonePage({ searchParams }: { searchParams: SP }) {
   const orderId = pick(searchParams, "orderId");
   const status = pick(searchParams, "status"); // 任意（ok / failed など想定）
 

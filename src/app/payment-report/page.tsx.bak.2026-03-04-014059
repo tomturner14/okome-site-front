@@ -1,7 +1,5 @@
 // frontend/src/app/payment-report/page.tsx
 "use client";
-
-export const dynamic = 'force-dynamic';
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -11,13 +9,11 @@ const pick = (sp: SP, k: string) => {
   return Array.isArray(v) ? v[0] : v;
 };
 
-export default async function PaymentReportPage({
-  searchParams: searchParamsP,
+export default function PaymentReportPage({
+  searchParams,
 }: {
-  searchParams: Promise<SP>;
+  searchParams: SP;
 }) {
-  const searchParams = await searchParamsP;
-
   const initialOrderId = pick(searchParams, "orderId") ?? "";
   const [orderId, setOrderId] = useState(initialOrderId);
   const [name, setName] = useState("");

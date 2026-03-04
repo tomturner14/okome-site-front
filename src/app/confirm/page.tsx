@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // frontend/src/app/confirm/page.tsx
 import Link from "next/link";
 
@@ -7,7 +9,8 @@ const pick = (sp: SP, k: string) => {
   return Array.isArray(v) ? v[0] : v;
 };
 
-export default function ConfirmPage({ searchParams }: { searchParams: SP }) {
+export default async function ConfirmPage({ searchParams: searchParamsP }: { searchParams: Promise<SP> }) {
+  const searchParams = await searchParamsP;
   const orderId = pick(searchParams, "orderId");
 
   return (

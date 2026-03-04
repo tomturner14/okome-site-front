@@ -1,7 +1,5 @@
 "use client";
 
-import { Suspense } from "react";
-
 export const dynamic = 'force-dynamic';
 
 import Link from "next/link";
@@ -18,15 +16,7 @@ import { formatDateTime, formatPrice } from "@/lib/format";
 import { toUserMessage } from "@/lib/errorMessage";
 import styles from "./MyPage.module.scss";
 
-export default function MyPage(props: any) {
-  return (
-    <Suspense fallback={null}>
-      <MyPageInner {...props} />
-    </Suspense>
-  );
-}
-
-function MyPageInner() {
+export default function MyPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

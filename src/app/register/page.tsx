@@ -1,5 +1,9 @@
 "use client";
 
+import { Suspense } from "react";
+
+export const dynamic = 'force-dynamic';
+
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -22,7 +26,15 @@ function safeNext(next: string | null): string {
   return next;
 }
 
-export default function RegisterPage() {
+export default function RegisterPage(props: any) {
+  return (
+    <Suspense fallback={null}>
+      <RegisterPageInner {...props} />
+    </Suspense>
+  );
+}
+
+function RegisterPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [form, setForm] = useState<RegisterInput>({ email: "", password: "", name: "" });

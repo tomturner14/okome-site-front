@@ -73,6 +73,7 @@ function __PageInner({ children, redirectTo }: Props) {
 export default function PageWrapper(props: any) {
   return (
     <Suspense fallback={null}>
+      {/* @ts-expect-error - props passthrough for wrapper */}
       <__PageInner {...props} />
     </Suspense>
   );

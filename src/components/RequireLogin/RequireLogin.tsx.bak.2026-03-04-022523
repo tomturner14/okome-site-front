@@ -1,7 +1,5 @@
 "use client";
 
-import { Suspense } from "react";
-
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
@@ -21,7 +19,7 @@ function buildCurrentUrl(pathname: string, searchParams: URLSearchParams): strin
   return qs ? `${pathname}?${qs}` : pathname;
 }
 
-function __PageInner({ children, redirectTo }: Props) {
+export default function RequireLogin({ children, redirectTo }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -68,13 +66,3 @@ function __PageInner({ children, redirectTo }: Props) {
 
   return <>{children}</>;
 }
-
-// __SUSPENSE_WRAPPED__
-export default function PageWrapper(props: any) {
-  return (
-    <Suspense fallback={null}>
-      <__PageInner {...props} />
-    </Suspense>
-  );
-}
-

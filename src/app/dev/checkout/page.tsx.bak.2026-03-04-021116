@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic';
-
 // 動作確認用：variantId と quantity を直で投げて Shopify に飛ぶ
 import CheckoutStartButton from "@/components/CheckoutStartButton";
 
