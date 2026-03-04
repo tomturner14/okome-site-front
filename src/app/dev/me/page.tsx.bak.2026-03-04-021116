@@ -1,9 +1,0 @@
-// frontend/src/app/dev/me/page.tsx
-export default function DevMePage() {
-  return (
-    <main style={{ maxWidth: 720, margin: "40px auto", padding: "0 16px" }}>
-      <h1>dev/me</h1>
-      <p>開発用ページ（ビルド通過のための最低限実装）</p>
-    </main>
-  );
-}
