@@ -13,12 +13,14 @@ type Product = {
   price: number | string;
 };
 
+const formatPrice = (price: number | string) =>
+  `${Number(price).toLocaleString('ja-JP')}円`;
+
 export default async function Home() {
   let products: Product[] = [];
 
   try {
     products = await getProducts();
-    console.log('取得した商品一覧:', products);
   } catch (error) {
     console.error('ホーム商品の取得に失敗:', error);
     products = [];
@@ -29,58 +31,74 @@ export default async function Home() {
       <section className={styles.hero}>
         <div className={styles.heroInner}>
           <div className={styles.heroContent}>
-            <p className={styles.heroEyebrow}>千葉の田んぼから、毎日の食卓へ</p>
+            <p className={styles.heroEyebrow}>
+              千葉の農産物を、きちんと選べるかたちで
+            </p>
 
             <h1 className={styles.heroTitle}>
-              生産者から直接届く、
+              毎日の食卓に合うお米を、
               <br />
-              まっすぐなお米
+              産地とつくり手から選ぶ
             </h1>
 
             <p className={styles.heroLead}>
-              毎日食べるものだからこそ、産地やつくり手が見える形で、
-              安心して選べるお米をお届けします。
+              毎日食べるものだから、派手な見せ方よりも、選びやすさと信頼感を大切に。
+              商品情報と生産者の背景をあわせて見ながら、納得して選べる販売サイトを目指しています。
             </p>
 
             <div className={styles.heroActions}>
               <Link href="/products" className={styles.primaryButton}>
                 商品を見る
               </Link>
+
               <Link href="/farmers" className={styles.secondaryButton}>
                 生産者を見る
               </Link>
             </div>
 
             <ul className={styles.heroFeatureList}>
-              <li className={styles.heroFeaturesItem}>産地がわかる</li>
-              <li className={styles.heroFeaturesItem}>つくり手が見える</li>
-              <li className={styles.heroFeaturesItem}>毎日選びやすい</li>
+              <li className={styles.heroFeaturesItem}>商品を見比べやすい</li>
+              <li className={styles.heroFeaturesItem}>つくり手の背景がわかる</li>
+              <li className={styles.heroFeaturesItem}>日々の買い物に使いやすい</li>
             </ul>
           </div>
 
           <div className={styles.heroVisual}>
             <div className={styles.heroVisualCard}>
-              <p className={styles.heroVisualLabel}>About</p>
-              <h2 className={styles.heroVisualTitel}>
-                つくり手の顔が見える、安心のお米選び
+              <p className={styles.heroVisualLabel}>はじめての方へ</p>
+
+              <h2 className={styles.heroVisualTitle}>
+                トップページから、
+                <br />
+                商品と生産者の両方をたどれる構成にしています
               </h2>
+
               <p className={styles.heroVisualText}>
-                どこで、誰が、どんな思いで育てたのか。
-                毎日食べるものだからこそ、背景まで伝わるお米の販売サイトを目指しています。
+                気になる商品を見つけて詳細を見る。
+                その後に、生産者や産地の情報も確認する。
+                農産物ECとして自然に回遊できる入口になるよう、必要な導線だけを整理しています。
               </p>
 
               <div className={styles.heroVisualPoints}>
                 <div className={styles.heroVisualPoint}>
                   <span className={styles.heroVisualNumber}>01</span>
-                  <span className={styles.heroVisualPointText}>産地がわかる</span>
+                  <span className={styles.heroVisualPointText}>
+                    商品一覧から、気になるお米を探す
+                  </span>
                 </div>
+
                 <div className={styles.heroVisualPoint}>
                   <span className={styles.heroVisualNumber}>02</span>
-                  <span className={styles.heroVisualPointText}>つくり手が見える</span>
+                  <span className={styles.heroVisualPointText}>
+                    商品詳細で、価格や内容を確認する
+                  </span>
                 </div>
+
                 <div className={styles.heroVisualPoint}>
                   <span className={styles.heroVisualNumber}>03</span>
-                  <span className={styles.heroVisualText}>毎日選びやすい</span>
+                  <span className={styles.heroVisualPointText}>
+                    生産者ページで、つくり手や地域の背景を知る
+                  </span>
                 </div>
               </div>
             </div>
@@ -90,10 +108,10 @@ export default async function Home() {
 
       <section className={styles.products}>
         <div className={styles.sectionHeader}>
-          <p className={styles.sectionEyebrow}>Products</p>
-          <h2 className={styles.sectionTitle}>人気のお米</h2>
+          <p className={styles.sectionEyebrow}>商品一覧</p>
+          <h2 className={styles.sectionTitle}>お米を選ぶ</h2>
           <p className={styles.sectionLead}>
-            毎日の食卓に取り入れやすいお米を、見比べやすい形でご紹介します。
+            写真・商品名・価格から気になる商品を見つけて、そのまま詳細ページへ進めます。
           </p>
         </div>
 
@@ -121,15 +139,14 @@ export default async function Home() {
                 </div>
 
                 <div className={styles.productBody}>
+                  <p className={styles.productCategory}>お米</p>
                   <h3 className={styles.productName}>{product.title}</h3>
-                  <p className={styles.productSubText}>商品詳細を見る</p>
+                  <p className={styles.productSubText}>商品詳細・内容を確認する</p>
                 </div>
 
                 <div className={styles.productFooter}>
-                  <p className={styles.productPrice}>
-                    {Number(product.price).toLocaleString()}円
-                  </p>
-                  <span className={styles.productLinkText}>詳しく見る</span>
+                  <p className={styles.productPrice}>{formatPrice(product.price)}</p>
+                  <span className={styles.productLinkText}>詳細を見る</span>
                 </div>
               </Link>
             ))
@@ -149,28 +166,30 @@ export default async function Home() {
 
       <section className={styles.farmers}>
         <div className={styles.sectionHeader}>
-          <p className={styles.sectionEyebrow}>Farmers</p>
-          <h2 className={styles.sectionTitle}>生産者と産地を知る</h2>
+          <p className={styles.sectionEyebrow}>生産者紹介</p>
+          <h2 className={styles.sectionTitle}>つくり手と産地を知る</h2>
           <p className={styles.sectionLead}>
-            つくり手や地域の背景を知ることが、おいしさや安心感につながります。
+            どんな人が、どんな土地で育てているのか。味だけでなく背景もあわせて伝える入口です。
           </p>
         </div>
 
         <div className={styles.farmerList}>
           <Link href="/farmers" className={styles.farmerCard}>
-            <p className={styles.farmerCardLabel}>Producer</p>
-            <h3 className={styles.farmerCardTitle}>つくり手を知る</h3>
+            <p className={styles.farmerCardLabel}>生産者</p>
+            <h3 className={styles.farmerCardTitle}>つくり手の考え方を見る</h3>
             <p className={styles.farmerCardText}>
-              誰が、どんな思いで育てているのかを伝えるための入口です。
+              毎日の管理や栽培への向き合い方が伝わると、商品選びにも納得感が出ます。
             </p>
+            <span className={styles.farmerCardLink}>生産者ページへ</span>
           </Link>
 
           <Link href="/farmers" className={styles.farmerCard}>
-            <p className={styles.farmerCardLabel}>Area</p>
-            <h3 className={styles.farmerCardText}>産地を知る</h3>
+            <p className={styles.farmerCardLabel}>産地</p>
+            <h3 className={styles.farmerCardTitle}>地域のことを知る</h3>
             <p className={styles.farmerCardText}>
-              土地や気候、地域の魅力まで伝わると、お米の印象もより深まります。
+              土地や気候の背景まで知ることで、農産物を選ぶ時間そのものが自然になります。
             </p>
+            <span className={styles.farmerCardLink}>産地紹介へ</span>
           </Link>
         </div>
       </section>
