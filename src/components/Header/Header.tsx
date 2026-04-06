@@ -1,36 +1,49 @@
 import Link from "next/link";
 import styles from "./Header.module.scss";
-import SessionBadge from "./SessionBadge";
 import MyPageButton from "@/components/MyPageButton";
 
 export default function Header() {
   return (
     <header className={styles.header}>
-      <div className={styles["header-left"]}>
-        <h1 className={styles.logo}>
-          <Link href="/">おこめ販売</Link>
-        </h1>
-      </div>
+      <div className={styles.headerInner}>
+        <div className={styles.brandBlock}>
+          <p className={styles.brandLead}>千葉の農産物を、毎日の食卓へ</p>
 
-      <form action="#" method="get" className={styles["header-search-form"]}>
-        <input
-          type="text"
-          name="q"
-          placeholder="商品 / 生産者名を探す"
-          className={styles["header-search-input"]}
-        />
-        <button type="submit" className={styles["header-search-button"]}>
-          検索
-        </button>
-      </form>
+          <h1 className={styles.logo}>
+            <Link href="/">おこめ販売</Link>
+          </h1>
+        </div>
 
-      <div className={styles["header-right"]}>
-        <SessionBadge />
-        {/* ログイン状態に応じて「マイページ」or「ログイン」に自動出し分け */}
-        <MyPageButton className={styles["login-button"]} />
-        <Link href="/cart" className={styles["cart-button"]}>
-          カート
-        </Link>
+        <form
+          action="/products"
+          method="get"
+          className={styles.headerSearchForm}
+          role="search"
+        >
+          <label htmlFor="site-search" className={styles.visuallyHidden}>
+            商品を検索
+          </label>
+
+          <input
+            id="site-search"
+            type="text"
+            name="q"
+            placeholder="商品名・品種名で探す"
+            className={styles.headerSearchInput}
+          />
+
+          <button type="submit" className={styles.headerSearchButton}>
+            検索
+          </button>
+        </form>
+
+        <div className={styles.headerRight}>
+          <MyPageButton className={styles.accountButton} />
+
+          <Link href="/cart" className={styles.cartButton}>
+            カート
+          </Link>
+        </div>
       </div>
     </header>
   );
