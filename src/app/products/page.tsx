@@ -13,11 +13,23 @@ type Product = {
   price: number | string;
 };
 
+type ProductsPageProps = {
+  searchParams?: Promise<{
+    q?: string | string[];
+  }>;
+};
+
 const formatPrice = (price: number | string) =>
   `${Number(price).toLocaleString('ja-JP')}円`;
 
-export default async function ProductsPage() {
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   let products: Product[] = [];
+
+  // 自分で打つ：URLの ?q=... を受け取る部分
+  const params = await searchParams;
+  const rawQuery = params?.q;
+  const query = Array.isArray(rawQuery) ? rawQuery[0] ?? '' : rawQuery ?? '';
+  const normalizedQuery = query.trim().toLowerCase();
 
   try {
     products = await getProducts();
@@ -26,19 +38,31 @@ export default async function ProductsPage() {
     products = [];
   }
 
+  // 自分で打つ：検索語があるときだけ、商品名とhandleで絞り込む部分
+  const filteredProducts = normalizedQuery
+    ? products.filter((product) => {
+      const searchableText = `${product.title} ${product.handle}`.toLowerCase();
+      return searchableText.includes(normalizedQuery);
+    })
+    : products;
+
   return (
     <section className={styles.products}>
       <div className={styles.sectionHeader}>
         <p className={styles.sectionEyebrow}>商品一覧</p>
-        <h1 className={styles.sectionTitle}>お米を選ぶ</h1>
+        <h1 className={styles.sectionTitle}>
+          {normalizedQuery ? '検索結果' : 'お米を選ぶ'}
+        </h1>
         <p className={styles.sectionLead}>
-          写真・商品名・価格から気になる商品を見つけて、そのまま詳細ページへ進めます。
+          {normalizedQuery
+            ? `「${query}」に一致する商品を表示しています。`
+            : '写真・商品名・価格から気になる商品を見つけて、そのまま詳細ページへ進めます。'}
         </p>
       </div>
 
       <div className={styles.productList}>
-        {products.length > 0 ? (
-          products.map((product) => (
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map((product) => (
             <Link
               key={product.id}
               href={`/product/${product.handle}`}
@@ -73,7 +97,9 @@ export default async function ProductsPage() {
           ))
         ) : (
           <div className={styles.emptyState}>
-            現在、商品情報を読み込めません。しばらくしてから再度お試しください。
+            {normalizedQuery
+              ? '条件に一致する商品が見つかりませんでした。検索語を変えて再度お試しください。'
+              : '現在、商品情報を読み込めません。しばらくしてから再度お試しください。'}
           </div>
         )}
       </div>
