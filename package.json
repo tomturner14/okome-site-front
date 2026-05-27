@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && npm run copy:standalone-static",
+    "copy:standalone-static": "mkdir -p .next/standalone/.next/static && cp -a .next/static/. .next/standalone/.next/static/",
     "start": "next start",
     "lint": "next lint"
   },
