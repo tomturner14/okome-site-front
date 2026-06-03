@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { api } from "@/lib/api";
 import { AuthOkSchema } from "@/types/api";
@@ -37,7 +37,6 @@ export default function LoginPage(props: any) {
 }
 
 function LoginPageInner() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [form, setForm] = useState<LoginInput>({ email: "", password: "" });
   const [err, setErr] = useState<string | null>(null);
@@ -69,8 +68,8 @@ function LoginPageInner() {
       });
       AuthOkSchema.parse(raw);
 
-      // ← ここが “next” 対応（location.href をやめて SPA 遷移）
-      router.replace(safeNext(nextParam));
+      // ログイン後はHeader状態を確実に更新するため、ページ全体を読み直す
+      window.location.assign(safeNext(nextParam));
     } catch (e: any) {
       const apiMsg = e?.data?.error ?? e?.message ?? "ログインに失敗しました";
       setErr(apiMsg);

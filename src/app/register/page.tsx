@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { api } from "@/lib/api";
 import { AuthOkSchema } from "@/types/api";
@@ -35,7 +35,6 @@ export default function RegisterPage(props: any) {
 }
 
 function RegisterPageInner() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [form, setForm] = useState<RegisterInput>({ email: "", password: "", name: "" });
   const [err, setErr] = useState<string | null>(null);
@@ -65,7 +64,7 @@ function RegisterPageInner() {
         parseErrorJson: true,
       });
       AuthOkSchema.parse(raw);
-      router.replace(safeNext(nextParam));
+      window.location.assign(safeNext(nextParam));
     } catch (e: any) {
       const apiMsg = e?.data?.error ?? e?.message ?? "登録に失敗しました";
       setErr(apiMsg);

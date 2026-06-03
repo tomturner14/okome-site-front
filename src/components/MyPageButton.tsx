@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { api } from "@/lib/api";
+import { MeResponseSchema, type MeResponse } from "@/types/api";
 
 export default function MyPageButton({ className }: { className?: string }) {
   const pathname = usePathname();
@@ -11,25 +12,38 @@ export default function MyPageButton({ className }: { className?: string }) {
 
   useEffect(() => {
     let alive = true;
+
     (async () => {
       try {
-        // /api/me が 200 -> 認証済み
-        await api("/me", { method: "GET", cache: "no-store" });
-        if (alive) setAuthed(true);
+        // 自分で打つ：/me の本文 loggedIn を見てログイン判定する
+        const raw = await api<unknown>("/me", {
+          method: "GET",
+          cache: "no-store",
+        });
+
+        const me: MeResponse = MeResponseSchema.parse(raw);
+
+        if (alive) {
+          setAuthed(me.loggedIn);
+        }
       } catch {
-        if (alive) setAuthed(false);
+        if (alive) {
+          setAuthed(false);
+        }
       }
     })();
+
     return () => {
       alive = false;
     };
   }, []);
 
-  if (authed === null) return null; // ローディング時は非表示でOK
+  if (authed === null) return null;
 
-  // 認証済みなら「マイページ」、未ログインなら「ログイン（復帰先付き）」
   return authed ? (
-    <Link href="/mypage" className={className}>マイページ</Link>
+    <Link href="/mypage" className={className}>
+      マイページ
+    </Link>
   ) : (
     <Link
       href={`/login?next=${encodeURIComponent(pathname ?? "/mypage")}`}
