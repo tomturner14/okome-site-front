@@ -5,8 +5,8 @@ import Footer from '@/components/Footer/Footer';
 import { ShopifyCartProvider } from '@/context/ShopifyCartContext';
 
 export const metadata: Metadata = {
-  title: 'おこめ販売',
-  description: '生産者から直接届くおいしいお米をお届けします',
+  title: '酒々井の恵',
+  description: '千葉・酒々井の農産物を、毎日の食卓へお届けします',
 };
 
 export default function RootLayout({

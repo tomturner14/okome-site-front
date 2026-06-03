@@ -10,7 +10,7 @@ export default function Header() {
           <p className={styles.brandLead}>千葉の農産物を、毎日の食卓へ</p>
 
           <h1 className={styles.logo}>
-            <Link href="/">おこめ販売</Link>
+            <Link href="/">酒々井の恵</Link>
           </h1>
         </div>
 

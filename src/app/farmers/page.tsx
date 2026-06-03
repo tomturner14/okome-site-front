@@ -9,8 +9,8 @@ export default function FarmersPage() {
     <div className={styles.page}>
       <h1>農家紹介ページ</h1>
       <p className={styles.description}>
-        ここでは、おこめ販売で取り扱っている農家さんをご紹介します。
-        どの農家さんも安全で美味しいお米作りに情熱を注いでいます。
+        ここでは、酒々井の恵で取り扱っている生産者さんをご紹介します。
+        どの生産者さんも安全で美味しいお米作りに情熱を注いでいます。
       </p>
       <div className={styles.actions}>
         <Link href="/" className={styles.backButton}>トップへ戻る</Link>
