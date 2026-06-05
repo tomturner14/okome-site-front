@@ -1,6 +1,20 @@
 // src/types/api.ts
 import { z } from "zod";
 
+/* -------- products -------- */
+export const ProductListItemSchema = z.object({
+  id: z.string(),
+  handle: z.string(),
+  title: z.string(),
+  description: z.string().optional().default(""),
+  image: z.string().optional().default(""),
+  price: z.number(),
+  firstVariantId: z.string().nullable(),
+  available: z.boolean(),
+});
+export const ProductsResponseSchema = z.array(ProductListItemSchema);
+export type ProductListItem = z.infer<typeof ProductListItemSchema>;
+
 /* -------- user / auth -------- */
 export const UserSchema = z.object({
   id: z.number(),

@@ -3,21 +3,14 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getProducts } from '@/lib/shopify';
+import type { ProductListItem } from '@/types/api';
 import styles from './HomePage.module.scss';
-
-type Product = {
-  id: string;
-  handle: string;
-  title: string;
-  image: string | null;
-  price: number | string;
-};
 
 const formatPrice = (price: number | string) =>
   `${Number(price).toLocaleString('ja-JP')}円`;
 
 export default async function Home() {
-  let products: Product[] = [];
+  let products: ProductListItem[] = [];
 
   try {
     products = await getProducts();

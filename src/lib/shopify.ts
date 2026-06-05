@@ -1,9 +1,10 @@
 // src/lib/shopify.ts
+import type { ProductListItem } from "@/types/api";
 import { api } from "./api";
 
 // 一覧
-export async function getProducts(): Promise<any[]> {
-  return await api<any[]>("/products", { method: "GET", cache: "no-store" });
+export async function getProducts(): Promise<ProductListItem[]> {
+  return await api<ProductListItem[]>("/products", { method: "GET", cache: "no-store" });
 }
 
 // 単品（handle 指定）
