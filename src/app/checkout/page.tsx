@@ -33,6 +33,21 @@ type CheckoutLine = {
   quantity: number;
 };
 
+type CheckoutErrorKind = "auth" | "api";
+
+type CheckoutError = {
+  kind: CheckoutErrorKind;
+  message: string;
+};
+
+function getErrorStatus(error: unknown): number | null {
+  if (error && typeof error === "object" && "status" in error) {
+    const status = Number((error as { status?: unknown }).status);
+    return Number.isFinite(status) ? status : null;
+  }
+  return null;
+}
+
 export default function CheckoutPage(props: any) {
   return (
     <Suspense fallback={null}>
@@ -47,7 +62,7 @@ function CheckoutPageInner() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<CheckoutError | null>(null);
 
   // 住所一覧の取得
   useEffect(() => {
@@ -63,8 +78,23 @@ function CheckoutPageInner() {
         if (!canceled) {
           setAddresses(rows);
         }
-      } catch (_e) {
-        if (!canceled) setError("住所の取得に失敗しました。時間をおいて再度お試しください。");
+      } catch (e) {
+        if (canceled) return;
+
+        const status = getErrorStatus(e);
+
+        if (status === 401) {
+          setError({
+            kind: "auth",
+            message: "購入手続きにはログインが必要です。",
+          });
+          return;
+        }
+
+        setError({
+          kind: "api",
+          message: "住所情報の取得に失敗しました。時間をおいて再度お試しください。",
+        });
       } finally {
         if (!canceled) setLoading(false);
       }
@@ -92,6 +122,9 @@ function CheckoutPageInner() {
   // 例）/checkout?variant=gid://shopify/ProductVariant/XXX&qty=2
   const urlVariant = search.get("variant") || "";
   const urlQty = Number(search.get("qty") || "1");
+
+  const queryString = search.toString();
+  const nextPath = `/checkout${queryString ? `?${queryString}` : ""}`;
 
   // ★ ここで型注釈を付ける（CheckoutLine[]）
   const lines = useMemo<CheckoutLine[]>(() => {
@@ -124,7 +157,24 @@ function CheckoutPageInner() {
   if (error) {
     return (
       <div className={styles.page}>
-        <p className={styles.error}>{error}</p>
+        <h1 className={styles.h1}>チェックアウト</h1>
+        <p className={styles.error}>{error.message}</p>
+
+        {error.kind === "auth" ? (
+          <p>
+            <Link className={styles.link} href={`/login?next=${encodeURIComponent(nextPath)}`}>
+              ログインする
+            </Link>
+            {" "}
+            <Link className={styles.link} href={`/register?next=${encodeURIComponent(nextPath)}`}>
+              新規登録する
+            </Link>
+          </p>
+        ) : (
+          <p>
+            ページを再読み込みしても解消しない場合は、時間をおいて再度お試しください。
+          </p>
+        )}
       </div>
     );
   }
@@ -133,10 +183,10 @@ function CheckoutPageInner() {
     return (
       <div className={styles.page}>
         <h1 className={styles.h1}>チェックアウト</h1>
-        <p>配送先住所が登録されていません。</p>
+        <p>購入手続きには配送先住所の登録が必要です。</p>
         <p>
           <Link className={styles.link} href="/mypage/addresses">
-            住所を追加する
+            配送先住所を登録する
           </Link>
         </p>
       </div>
