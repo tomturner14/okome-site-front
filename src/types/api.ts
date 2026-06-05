@@ -76,7 +76,7 @@ export const OrderDetailSchema = z.object({
   fulfill_status: z.string(),
   ordered_at: z.string(),
   items: z.array(OrderItemSchema).optional().default([]),
-  address: AddressEmbeddedSchema, // 配送先
+  address: AddressEmbeddedSchema.nullable().optional().transform((v) => v ?? null), // 配送先
 });
 export type OrderDetail = z.infer<typeof OrderDetailSchema>;
 
