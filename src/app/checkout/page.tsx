@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import styles from "./CheckoutPage.module.scss";
 import { api } from "@/lib/api";
 import { selectInitialAddressId } from "@/lib/selectInitialAddressId";
@@ -42,7 +42,6 @@ export default function CheckoutPage(props: any) {
 }
 
 function CheckoutPageInner() {
-  const router = useRouter();
   const search = useSearchParams();
 
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -119,12 +118,6 @@ function CheckoutPageInner() {
     };
   }, [selected]);
 
-  // 既存の「次へ」動線（確認画面へ）
-  const handleNext = async () => {
-    if (!selectedAddressId) return;
-    router.push(`/confirm?addressId=${selectedAddressId}`);
-  };
-
   if (loading) {
     return <p className={styles.page}>読み込み中…</p>;
   }
@@ -195,17 +188,7 @@ function CheckoutPageInner() {
       </section>
 
       <div className={styles.actions}>
-        {/* 既存の確認画面へ（残してOK） */}
-        <button
-          className={styles.secondary}
-          type="button"
-          disabled={!selectedAddressId}
-          onClick={handleNext}
-        >
-          次へ（確認画面へ）
-        </button>
-
-        {/* Shopify チェックアウトへ直行（最短動作） */}
+        {/* Shopify チェックアウトへ直行 */}
         <CheckoutStartButton
           lines={lines}
           shippingAddress={shippingAddress}
