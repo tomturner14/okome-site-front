@@ -37,6 +37,12 @@ export const AuthOkSchema = z.object({
 });
 export type AuthOk = z.infer<typeof AuthOkSchema>;
 
+/* -------- orders common -------- */
+const OrderStatusValueSchema = z.string().nullable().optional().transform((v) => {
+  const value = (v ?? "").trim();
+  return value || "unknown";
+});
+
 /* -------- orders (list) -------- */
 export const OrderItemSchema = z.object({
   title: z.string(),
@@ -48,8 +54,8 @@ export const OrderItemSchema = z.object({
 export const OrderSchema = z.object({
   id: z.number(),
   total_price: z.number(),
-  status: z.string(),          // BE の enum に合わせて後で厳密化OK
-  fulfill_status: z.string(),  // 同上
+  status: OrderStatusValueSchema,          // BE の enum に合わせて後で厳密化OK
+  fulfill_status: OrderStatusValueSchema,  // 同上
   ordered_at: z.string(),      // ISO 文字列想定
   items: z.array(OrderItemSchema).optional().default([]),
 });
@@ -72,8 +78,8 @@ export type AddressEmbedded = z.infer<typeof AddressEmbeddedSchema>;
 export const OrderDetailSchema = z.object({
   id: z.number(),
   total_price: z.number(),
-  status: z.string(),
-  fulfill_status: z.string(),
+  status: OrderStatusValueSchema,
+  fulfill_status: OrderStatusValueSchema,
   ordered_at: z.string(),
   items: z.array(OrderItemSchema).optional().default([]),
   address: AddressEmbeddedSchema.nullable().optional().transform((v) => v ?? null), // 配送先

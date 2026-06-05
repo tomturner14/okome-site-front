@@ -8,7 +8,13 @@ import Link from "next/link";
 import { api } from "@/lib/api";
 import RequireLogin from "@/components/RequireLogin/RequireLogin";
 import { OrderDetailSchema, type OrderDetail } from "@/types/api";
-import { formatDateTime, formatPrice, formatPostal7 } from "@/lib/format";
+import {
+  formatDateTime,
+  formatFulfillStatus,
+  formatOrderStatus,
+  formatPostal7,
+  formatPrice,
+} from "@/lib/format";
 import { toUserMessage } from "@/lib/errorMessage";
 import styles from "./OrderDetailPage.module.scss";
 
@@ -71,7 +77,8 @@ export default function OrderDetailPage() {
               <div className={styles.row}>
                 <span className={styles.key}>ステータス</span>
                 <span className={styles.val}>
-                  {data.status} / {data.fulfill_status}
+                  {formatOrderStatus(data.status)} /{" "}
+                  {formatFulfillStatus(data.fulfill_status)}
                 </span>
               </div>
               <div className={styles.row}>

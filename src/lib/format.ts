@@ -30,3 +30,25 @@ export function formatPostal7(value: string): string {
   if (digits.length !== 7) return value ?? "";
   return `${digits.slice(0, 3)}-${digits.slice(3)}`;
 }
+
+/** 注文ステータスを画面表示用に整える */
+export function formatOrderStatus(value: string | null | undefined): string {
+  const status = String(value ?? "").trim();
+
+  if (!status || status === "unknown") {
+    return "確認中";
+  }
+
+  return status;
+}
+
+/** 発送ステータスを画面表示用に整える */
+export function formatFulfillStatus(value: string | null | undefined): string {
+  const status = String(value ?? "").trim();
+
+  if (!status || status === "unknown") {
+    return "発送状況未設定";
+  }
+
+  return status;
+}
