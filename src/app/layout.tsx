@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import "@/styles/globals.scss";
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
-import { ShopifyCartProvider } from '@/context/ShopifyCartContext';
 
 export const metadata: Metadata = {
   title: '酒々井の恵',
@@ -17,13 +16,11 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-        <ShopifyCartProvider>
-          <Header />
-          <main>
-            {children}
-          </main>
-          <Footer />
-        </ShopifyCartProvider>
+        <Header />
+        <main>
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );

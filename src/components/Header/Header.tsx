@@ -39,10 +39,6 @@ export default function Header() {
 
         <div className={styles.headerRight}>
           <MyPageButton className={styles.accountButton} />
-
-          <Link href="/cart" className={styles.cartButton}>
-            カート
-          </Link>
         </div>
       </div>
     </header>
