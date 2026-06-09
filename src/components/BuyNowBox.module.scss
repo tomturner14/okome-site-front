@@ -1,0 +1,79 @@
+@use "@/styles/variables" as v;
+
+.buyNowBox {
+  display: grid;
+  gap: v.$space-4;
+  max-width: 360px;
+  padding: v.$space-5;
+  background: v.$background-white;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-6;
+}
+
+.headingArea {
+  display: grid;
+  gap: 4px;
+}
+
+.heading {
+  margin: 0;
+  font-size: v.$fs-lg;
+  font-weight: 700;
+  color: v.$text-dark;
+}
+
+.note {
+  margin: 0;
+  font-size: v.$fs-sm;
+  line-height: 1.6;
+  color: v.$text-medium;
+}
+
+.quantityLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$space-3;
+}
+
+.quantityText {
+  font-size: v.$fs-md;
+  font-weight: 700;
+  color: v.$text-dark;
+}
+
+.quantityInput {
+  width: 88px;
+  padding: 8px 10px;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-6;
+  font-size: v.$fs-md;
+}
+
+.checkoutButton {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: v.$radius-6;
+  background: v.$primary-color;
+  color: v.$background-white;
+  font-size: v.$fs-md;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.checkoutButton:hover:not(:disabled) {
+  background: v.$primary-hover;
+}
+
+.checkoutButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  margin: 0;
+  font-size: v.$fs-sm;
+  line-height: 1.6;
+  color: #b00020;
+}
