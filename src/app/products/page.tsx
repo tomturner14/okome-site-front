@@ -19,8 +19,8 @@ export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
   let products: ProductListItem[] = [];
+  let hasFetchError = false;
 
-  // 自分で打つ：URLの ?q=... を受け取る部分
   const params = await searchParams;
   const rawQuery = params?.q;
   const query = Array.isArray(rawQuery)
@@ -33,9 +33,9 @@ export default async function ProductsPage({
   } catch (error) {
     console.error("商品一覧の取得に失敗:", error);
     products = [];
+    hasFetchError = true;
   }
 
-  // 自分で打つ：検索語があるときだけ、商品名とhandleで絞り込む部分
   const filteredProducts = normalizedQuery
     ? products.filter((product) => {
         const searchableText =
@@ -59,7 +59,11 @@ export default async function ProductsPage({
       </div>
 
       <div className={styles.productList}>
-        {filteredProducts.length > 0 ? (
+        {hasFetchError ? (
+          <div className={styles.emptyState}>
+            商品情報の取得に失敗しました。しばらくしてから再度お試しください。
+          </div>
+        ) : filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
             <Link
               key={product.id}
@@ -103,7 +107,7 @@ export default async function ProductsPage({
           <div className={styles.emptyState}>
             {normalizedQuery
               ? "条件に一致する商品が見つかりませんでした。検索語を変えて再度お試しください。"
-              : "現在、商品情報を読み込めません。しばらくしてから再度お試しください。"}
+              : "現在、表示できる商品がありません。"}
           </div>
         )}
       </div>
