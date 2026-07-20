@@ -1,14 +1,16 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { getProduct } from '@/lib/shopify';
-import BuyNowBox from '@/components/BuyNowBox';
+import Image from "next/image";
+import Link from "next/link";
+import { getProduct } from "@/lib/shopify";
+import BuyNowBox from "@/components/BuyNowBox";
 
-type PageProps = { params: Promise<{ handle: string }> };
+type PageProps = {
+  params: Promise<{ handle: string }>;
+};
 
 export default async function ProductPage({ params }: PageProps) {
-  const { handle } = await params; // ★ Next.js 15 の推奨形
+  const { handle } = await params;
   const product = await getProduct(handle);
 
   if (!product) {
@@ -19,18 +21,20 @@ export default async function ProductPage({ params }: PageProps) {
   const price: number = Number(product.price ?? 0);
   const firstVariantId: string | null =
     product.variants && product.variants.length > 0
-      ? product.variants[0].id ?? null
+      ? (product.variants[0].id ?? null)
       : null;
 
   return (
-    <div style={{ padding: '24px 16px', maxWidth: 980, margin: '0 auto' }}>
+    <div style={{ padding: "24px 16px", maxWidth: 980, margin: "0 auto" }}>
       <p>
         <Link href="/products">← 戻る</Link>
       </p>
 
-      <h1 style={{ fontSize: 28, margin: '12px 0 20px' }}>{product.title}</h1>
+      <h1 style={{ fontSize: 28, margin: "12px 0 20px" }}>{product.title}</h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 24 }}>
+      <div
+        style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 24 }}
+      >
         <div>
           {firstImage ? (
             <Image
@@ -38,16 +42,16 @@ export default async function ProductPage({ params }: PageProps) {
               alt={product.title}
               width={320}
               height={320}
-              style={{ objectFit: 'contain' }}
+              style={{ objectFit: "contain" }}
             />
           ) : (
             <div
               style={{
                 width: 320,
                 height: 320,
-                background: '#eee',
-                display: 'grid',
-                placeItems: 'center',
+                background: "#eee",
+                display: "grid",
+                placeItems: "center",
               }}
             >
               画像なし
@@ -56,10 +60,10 @@ export default async function ProductPage({ params }: PageProps) {
         </div>
 
         <div>
-          <p style={{ margin: '8px 0 16px', lineHeight: 1.8 }}>
-            {product.description ?? ''}
+          <p style={{ margin: "8px 0 16px", lineHeight: 1.8 }}>
+            {product.description ?? ""}
           </p>
-          <p style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 16 }}>
+          <p style={{ fontWeight: "bold", fontSize: 18, marginBottom: 16 }}>
             {price.toLocaleString()}円
           </p>
 
